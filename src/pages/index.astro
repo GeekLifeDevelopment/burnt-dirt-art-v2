@@ -1,12 +1,37 @@
 ---
 import Welcome from '../components/Welcome.astro';
 import Layout from '../layouts/Layout.astro';
+import kidsImage from '../assets/kids.jpg';
+import artImage from '../assets/IMG_4337.jpeg'
+import '../styles/index.styles.css';
 
 // Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
 // Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
 ---
 
 <Layout>
-	<h1>This is the new Burnt Dirt Art Site</h1>
-	<Welcome />
+	<section id="welcome-section">
+		<div id="text-box">
+			<h1>Hi, I'm Rebecca!</h1>
+			<div class="image-box image-mobile-hide">
+			<img src={kidsImage.src} alt="Rebecca Sorenson Profile Picture" />
+		</div>
+			<p>Rebecca C. Sorenson is a 1997 graduate of The School of the Art Institute of Chicago.  After graduation she worked as assistant to the registrar of the anthropology department at The Field Museum in Chicago, before returning home to work as an EBD teacher, then a high school science teacher.  Rebecca lives with her husband and three daughters in Racine, Wisconsin.</p>
+		</div>
+		
+		
+		
+		<div class="image-box image-desktop-hide">
+			<img src={kidsImage.src} alt="Rebecca Sorenson Profile Picture" />
+		</div>
+	</section>
+	<section id="about-art-section">
+		<div class="art-image-box">
+			<img src={artImage.src} alt="Rebecca Sorenson Profile Picture" />
+		</div>
+		<div class="art-section-text">
+		<h2>About My Art</h2>
+		<p>My art is inspired by the natural world, particularly the textures and colors found in soil, rocks, and plants. I use a variety of media, including painting, sculpture, and mixed media, to explore these themes. My goal is to create pieces that evoke a sense of connection to the earth and encourage viewers to appreciate the beauty of the natural environment.</p>
+		</div>
+	</section>
 </Layout>

@@ -3,13 +3,25 @@ import './navigation.styles.css';
 ---
 
 <nav class="navContainer">
-    <ul class="navList">
-        <li class="heading">Burnt Dirt Art</li>
-        <div class="links">
+    <div class="navHeader">
+        <h1 class="heading">Burnt Dirt Art</h1>
+        <button class="hamburger" id="hamburger">
+            <i class="fas fa-bars"></i>
+        </button>
+    </div>
+    <ul class="navList" id="navList">
         <li><a href="/"><i class="fas fa-home"></i> Home</a></li>
         <li><a href="/about"><i class="fas fa-user"></i> About</a></li>
         <li><a href="/gallery"><i class="fas fa-images"></i> Gallery</a></li>
         <li><a href="/contact"><i class="fas fa-envelope"></i> Contact</a></li>
-        </div>
     </ul>
 </nav>
+
+<script>
+    const hamburger = document.getElementById('hamburger');
+    const navList = document.getElementById('navList');
+
+    hamburger?.addEventListener('click', () => {
+        navList?.classList.toggle('active');
+    });
+</script>
