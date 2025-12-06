@@ -1,0 +1,24 @@
+ul {
+    list-style-type: none;
+    display: flex;
+    color: black;
+    text-decoration: none;
+    justify-content: space-between;
+    background-color: rgba(237, 239, 217, 0.909);
+    padding: 1rem;
+    margin: 0;
+    font-weight: 200;
+}
+
+.links {
+    text-decoration: none;
+    color: black;
+    font-weight: bolder;
+    display: flex;
+    gap: 4rem;
+}
+
+.links a {
+    text-decoration: none;
+    color: black;
+}
