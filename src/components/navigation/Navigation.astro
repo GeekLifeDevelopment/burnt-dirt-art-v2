@@ -3,18 +3,21 @@ import './navigation.styles.css';
 ---
 
 <nav class="navContainer">
-    <div class="navHeader">
-        <h1 class="heading">Burnt Dirt Art</h1>
-        <button class="hamburger" id="hamburger">
-            <i class="fas fa-bars"></i>
-        </button>
+    <div class="navContent">
+        <div class="navHeader">
+            
+            <button class="hamburger" id="hamburger">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+        <ul class="navList" id="navList">
+            <li><a href="/"><i class="fas fa-home"></i> Home</a></li>
+            <li><a href="/about"><i class="fas fa-user"></i> About</a></li>
+            <li><a href="/gallery"><i class="fas fa-images"></i> Gallery</a></li>
+            <li><a href="/contact"><i class="fas fa-envelope"></i> Contact</a></li>
+        </ul>
     </div>
-    <ul class="navList" id="navList">
-        <li><a href="/"><i class="fas fa-home"></i> Home</a></li>
-        <li><a href="/about"><i class="fas fa-user"></i> About</a></li>
-        <li><a href="/gallery"><i class="fas fa-images"></i> Gallery</a></li>
-        <li><a href="/contact"><i class="fas fa-envelope"></i> Contact</a></li>
-    </ul>
+    <p class="navText">Rebecca C. Sorenson is a 1997 graduate of The School of the Art Institute of Chicago. After graduation she worked as assistant to the registrar of the anthropology department at The Field Museum in Chicago, before returning home to work as an EBD teacher, then a high school science teacher. Rebecca lives with her husband and three daughters in Racine, Wisconsin.</p>
 </nav>
 
 <script>
