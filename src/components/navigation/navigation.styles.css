@@ -1,15 +1,18 @@
 .navContainer {
-    background-color: rgba(237, 239, 217, 0.909);
+    background-color: rgba(182, 84, 48, 0.909);
     padding: 1rem;
+    height: 500px;
+}
+
+.navContent {
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
+    align-items: flex-start;
 }
 
 .navHeader {
     display: flex;
-    justify-content: space-between;
+    
     align-items: center;
 }
 
@@ -36,9 +39,10 @@
     text-decoration: none;
     align-items: center;
     gap: 4rem;
-    padding: 0;
+    padding: 3rem;
     margin: 0;
     font-weight: 200;
+    margin: 0 auto;
 }
 
 .navList li {
@@ -49,6 +53,14 @@
     text-decoration: none;
     color: black;
     font-weight: bolder;
+}
+
+.navText {
+    max-width: 800px;
+    text-align: center;
+    margin: 0 auto;
+    padding: 1rem 0;
+    color: black;
 }
 
 /* Tablet and smaller */
