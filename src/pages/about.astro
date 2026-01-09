@@ -3,5 +3,113 @@ import Layout from "../layouts/Layout.astro";
 ---
 
 <Layout>
-    Here is the about page
+    <div class="aboutContainer">
+        <div class="aboutContent">
+            <h1>About the Artist</h1>
+            
+            <div class="bioSection">
+                <p>
+                    Rebecca C. Sorenson is a 1997 graduate of The School of the Art Institute of Chicago. 
+                    After graduation she worked as assistant to the registrar of the anthropology department 
+                    at The Field Museum in Chicago, before returning home to work as an EBD teacher, then a 
+                    high school science teacher.
+                </p>
+                
+                <p>
+                    Rebecca lives with her husband and three daughters in Racine, Wisconsin, where she continues 
+                    to create art inspired by the beauty of everyday life and the natural world around her.
+                </p>
+                
+                <p>
+                    Her work explores themes of still life, portraiture, and the intersection of nature and 
+                    human experience. Through her art, she seeks to capture moments of quiet contemplation 
+                    and the subtle beauty found in ordinary objects and scenes.
+                </p>
+            </div>
+            
+            <div class="education">
+                <h2>Education</h2>
+                <p><strong>The School of the Art Institute of Chicago</strong> - 1997</p>
+            </div>
+            
+            <div class="experience">
+                <h2>Experience</h2>
+                <ul>
+                    <li>Assistant to the Registrar, Anthropology Department - The Field Museum, Chicago</li>
+                    <li>EBD Teacher</li>
+                    <li>High School Science Teacher</li>
+                </ul>
+            </div>
+        </div>
+    </div>
 </Layout>
+
+<style>
+    .aboutContainer {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 3rem 2rem;
+    }
+    
+    .aboutContent {
+        line-height: 1.8;
+    }
+    
+    h1 {
+        color: #333;
+        font-size: 2.5rem;
+        margin-bottom: 2rem;
+        border-bottom: 3px solid rgba(125, 83, 77, 0.909);
+        padding-bottom: 1rem;
+    }
+    
+    h2 {
+        color: rgba(125, 83, 77, 0.909);
+        font-size: 1.8rem;
+        margin-top: 2.5rem;
+        margin-bottom: 1rem;
+    }
+    
+    .bioSection p {
+        color: #555;
+        font-size: 1.1rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .education p,
+    .experience ul {
+        color: #666;
+        font-size: 1rem;
+    }
+    
+    .education p {
+        margin: 0.5rem 0;
+    }
+    
+    .experience ul {
+        list-style-position: inside;
+        padding-left: 1rem;
+    }
+    
+    .experience li {
+        margin-bottom: 0.75rem;
+    }
+    
+    @media (max-width: 768px) {
+        .aboutContainer {
+            padding: 2rem 1rem;
+        }
+        
+        h1 {
+            font-size: 2rem;
+        }
+        
+        h2 {
+            font-size: 1.5rem;
+        }
+        
+        .bioSection p {
+            font-size: 1rem;
+        }
+    }
+</style>
