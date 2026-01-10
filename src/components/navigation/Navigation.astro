@@ -1,8 +1,11 @@
 ---
 import './navigation.styles.css';
+
+const { pathname } = Astro.url;
+const isHomePage = pathname === '/' || pathname === '';
 ---
 
-<nav class="navContainer">
+<nav class={`navContainer ${!isHomePage ? 'navContainer--compact' : ''}`}>
     <div class="navContent">
         <div class="navHeader">
             
@@ -17,7 +20,9 @@ import './navigation.styles.css';
             <li><a href="/contact"><i class="fas fa-envelope"></i> Contact</a></li>
         </ul>
     </div>
-    <p class="navText">Rebecca C. Sorenson is a 1997 graduate of The School of the Art Institute of Chicago. After graduation she worked as assistant to the registrar of the anthropology department at The Field Museum in Chicago, before returning home to work as an EBD teacher, then a high school science teacher. Rebecca lives with her husband and three daughters in Racine, Wisconsin.</p>
+    {isHomePage && (
+        <p class="navText">Rebecca C. Sorenson is a 1997 graduate of The School of the Art Institute of Chicago. After graduation she worked as assistant to the registrar of the anthropology department at The Field Museum in Chicago, before returning home to work as an EBD teacher, then a high school science teacher. Rebecca lives with her husband and three daughters in Racine, Wisconsin.</p>
+    )}
 </nav>
 
 <script>

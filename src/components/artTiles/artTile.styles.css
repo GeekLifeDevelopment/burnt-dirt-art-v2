@@ -7,6 +7,8 @@
     margin: -200px auto 0 auto;
     padding: 2rem;
     min-height: 100vh;
+    position: relative;
+    z-index: 10;
 }
 
 .artGrid {
@@ -146,6 +148,7 @@
     
     .ArtTileContainer {
         padding: 1rem;
+        margin: -200px auto 0 auto;
     }
 }
 
