@@ -1,0 +1,202 @@
+---
+import "./allArtTiles.styles.css";
+
+import gardenStakes from "../../assets/art/garden-stakes.jpg";
+import girlsOnBench from "../../assets/art/girlsonbench.jpg";
+import inkwashman from "../../assets/art/inkwashman.jpg";
+import girlCat from "../../assets/art/girl-with-cat.jpeg";
+import shellEarings from "../../assets/art/shellEarings.jpeg";
+import buckthorn from "../../assets/art/buckthorn.jpeg";
+import leafEarrings from "../../assets/art/leaves.jpeg";
+import leafEarrings2 from "../../assets/art/leafEarrings.png";
+import inProgress from "../../assets/art/inProgress.jpeg";
+import museum from "../../assets/art/museum.png";
+import wisconsinBreakfast from "../../assets/art/wisconsinBreakfast.png";
+import cookieCutters from "../../assets/art/cookieCutters.png";
+
+const artPieces = [
+  {
+    src: girlCat,
+    title: "Girl with Cat",
+    description: "Add your description here",
+  },
+  {
+    src: museum,
+    title: "At the Museum (In Progress)",
+    description: "Add your description here",
+  },
+  {
+    src: leafEarrings2,
+    title: "Leaf Earrings",
+    description: "Add your description here",
+  },
+  {
+    src: cookieCutters,
+    title: "Cookie Cutters",
+    description: "Add your description here",
+  },
+  {
+    src: wisconsinBreakfast,
+    title: "Wisconsin Breakfast",
+    description: "Add your description here",
+  },
+  {
+    src: leafEarrings,
+    title: "Leaf Earrings",
+    description: "Add your description here",
+  },
+  {
+    src: shellEarings,
+    title: "Wild Rose Earrings",
+    description: "Add your description here",
+  },
+  {
+    src: inProgress,
+    title: "In Progress",
+    description: "Add your description here",
+  },
+  {
+    src: buckthorn,
+    title: "Buckthorn",
+    description: "Add your description here",
+  },
+  {
+    src: gardenStakes,
+    title: "Garden Stakes",
+    description: "Add your description here",
+  },
+  {
+    src: girlsOnBench,
+    title: "Girls on Bench (Study)",
+    description: "Add your description here",
+  },
+  {
+    src: inkwashman,
+    title: "Ink Wash Man",
+    description: "Add your description here",
+  },
+];
+---
+
+<div class="ArtTileContainer">
+  <div class="artGrid">
+    {
+      artPieces.map((piece, index) => (
+        <div class="artCard" data-index={index}>
+          <img src={piece.src.src} alt={piece.title} class="artImage" />
+          <h3 class="artTitle">{piece.title}</h3>
+          <p class="artDescription">{piece.description}</p>
+        </div>
+      ))
+    }
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal" id="galleryModal">
+  <div class="modalContent">
+    <button class="closeBtn" id="galleryCloseBtn">&times;</button>
+    <img src="" alt="" class="modalImage" id="galleryModalImage" />
+    <h2 class="modalTitle" id="galleryModalTitle"></h2>
+    <p class="modalDescription" id="galleryModalDescription"></p>
+  </div>
+</div>
+
+<script>
+  const artPieces = [
+    {
+      src: "/src/assets/art/girl-with-cat.jpeg",
+      title: "Girl with Cat",
+      description: "Add your description here",
+    },
+    {
+      src: "/src/assets/art/museum.png",
+      title: "At the Museum (In Progress)",
+      description: "Add your description here",
+    },
+    {
+      src: "/src/assets/art/leafEarrings.png",
+      title: "Leaf Earrings",
+      description: "Add your description here",
+    },
+    {
+      src: "/src/assets/art/cookieCutters.png",
+      title: "Cookie Cutters",
+      description: "Add your description here",
+    },
+    {
+      src: "/src/assets/art/wisconsinBreakfast.png",
+      title: "Wisconsin Breakfast",
+      description: "Add your description here",
+    },
+    {
+      src: "/src/assets/art/leaves.jpeg",
+      title: "Leaf Earrings",
+      description: "Add your description here",
+    },
+    {
+      src: "/src/assets/art/shellEarings.jpeg",
+      title: "Wild Rose Earrings",
+      description: "Add your description here",
+    },
+    {
+      src: "/src/assets/art/inProgress.jpeg",
+      title: "In Progress",
+      description: "Add your description here",
+    },
+    {
+      src: "/src/assets/art/buckthorn.jpeg",
+      title: "Buckthorn",
+      description: "Add your description here",
+    },
+    {
+      src: "/src/assets/art/garden-stakes.jpg",
+      title: "Garden Stakes",
+      description: "Add your description here",
+    },
+    {
+      src: "/src/assets/art/girlsonbench.jpg",
+      title: "Girls on Bench (Study)",
+      description: "Add your description here",
+    },
+    {
+      src: "/src/assets/art/inkwashman.jpg",
+      title: "Ink Wash Man",
+      description: "Add your description here",
+    },
+  ];
+
+  const modal = document.getElementById("galleryModal");
+  const modalImage = document.getElementById("galleryModalImage");
+  const modalTitle = document.getElementById("galleryModalTitle");
+  const modalDescription = document.getElementById("galleryModalDescription");
+  const closeBtn = document.getElementById("galleryCloseBtn");
+  const artCards = document.querySelectorAll(".artCard");
+
+  artCards.forEach((card) => {
+    card.addEventListener("click", () => {
+      const index = parseInt(card.getAttribute("data-index") || "0");
+      const piece = artPieces[index];
+
+      const imgElement = card.querySelector(".artImage") as HTMLImageElement;
+      if (imgElement) {
+        (modalImage as HTMLImageElement).src = imgElement.src;
+        (modalImage as HTMLImageElement).alt = piece.title;
+      }
+      if (modalTitle) modalTitle.textContent = piece.title;
+      if (modalDescription) modalDescription.textContent = piece.description;
+
+      modal?.classList.add("active");
+    });
+  });
+
+  closeBtn?.addEventListener("click", () => {
+    modal?.classList.remove("active");
+  });
+
+  modal?.addEventListener("click", (e) => {
+    if (e.target === modal) {
+      modal.classList.remove("active");
+    }
+  });
+</script>
