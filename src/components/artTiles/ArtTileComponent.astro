@@ -15,6 +15,7 @@ import inProgress from "../../assets/art/inProgress.jpeg";
 import museum from "../../assets/art/museum.png";
 import wisconsinBreakfast from "../../assets/art/wisconsinBreakfast.png";
 import cookieCutters from "../../assets/art/cookieCutters.png";
+import birdFeeders from "../../assets/art/bird-feeder.png";
 
 const artPieces = [
   {
@@ -73,7 +74,11 @@ const artPieces = [
     title: "Enjoying Lolliypops (Study)",
     description: "$50 pastel on paper 9x12 inches",
   },
-  
+  {
+    src: birdFeeders,
+    title: "Oriole Feeders",
+    description: "$80 hand built solid cedar with unique oil paintings of birds, flowers, and leaves.",
+  },
 ];
 ---
 
@@ -102,69 +107,6 @@ const artPieces = [
 </div>
 
 <script>
-  const artPieces = [
-    {
-      src: "/src/assets/art/girl-with-cat.jpeg",
-      title: "Girl with Cat",
-      description: "Add your description here",
-    },
-    {
-      src: "/src/assets/art/museum.png",
-      title: "At the Museum (In Progress)",
-      description: "Add your description here",
-    },
-    {
-      src: "/src/assets/art/leafEarrings.png",
-      title: "Leaf Earrings",
-      description: "Add your description here",
-    },
-    {
-      src: "/src/assets/art/cookieCutters.png",
-      title: "Cookie Cutters",
-      description: "Add your description here",
-    },
-    {
-      src: "/src/assets/art/wisconsinBreakfast.png",
-      title: "Wisconsin Breakfast",
-      description: "Add your description here",
-    },
-    {
-      src: "/src/assets/art/leaves.jpeg",
-      title: "Leaf Earrings",
-      description: "Add your description here",
-    },
-    {
-      src: "/src/assets/art/shellEarings.jpeg",
-      title: "Wild Rose Earrings",
-      description: "Add your description here",
-    },
-    {
-      src: "/src/assets/art/inProgress.jpeg",
-      title: "In Progress",
-      description: "Add your description here",
-    },
-    {
-      src: "/src/assets/art/buckthorn.jpeg",
-      title: "Buckthorn",
-      description: "Add your description here",
-    },
-    {
-      src: "/src/assets/art/garden-stakes.jpg",
-      title: "Garden Stakes",
-      description: "Add your description here",
-    },
-    {
-      src: "/src/assets/art/girlsonbench.jpg",
-      title: "Girls on Bench (Study)",
-      description: "Add your description here",
-    },
-    {
-      src: "/src/assets/art/inkwashman.jpg",
-      title: "Ink Wash Man",
-      description: "Add your description here",
-    },
-  ];
-
   const modal = document.getElementById("artModal");
   const modalImage = document.getElementById("modalImage");
   const modalTitle = document.getElementById("modalTitle");
@@ -174,28 +116,32 @@ const artPieces = [
 
   artCards.forEach((card) => {
     card.addEventListener("click", () => {
-      const index = parseInt(card.getAttribute("data-index") || "0");
-      const piece = artPieces[index];
-
       const imgElement = card.querySelector(".artImage") as HTMLImageElement;
-      if (imgElement) {
-        (modalImage as HTMLImageElement).src = imgElement.src;
-        (modalImage as HTMLImageElement).alt = piece.title;
-      }
-      if (modalTitle) modalTitle.textContent = piece.title;
-      if (modalDescription) modalDescription.textContent = piece.description;
+      const titleElement = card.querySelector(".artTitle");
+      const descElement = card.querySelector(".artDescription");
 
-      modal?.classList.add("active");
+      if (imgElement && modalImage) {
+        (modalImage as HTMLImageElement).src = imgElement.src;
+        (modalImage as HTMLImageElement).alt = titleElement?.textContent || "";
+      }
+      if (modalTitle) modalTitle.textContent = titleElement?.textContent || "";
+      if (modalDescription) modalDescription.textContent = descElement?.textContent || "";
+
+      if (modal) modal.classList.add("active");
     });
   });
 
-  closeBtn?.addEventListener("click", () => {
-    modal?.classList.remove("active");
-  });
+  if (closeBtn) {
+    closeBtn.addEventListener("click", () => {
+      if (modal) modal.classList.remove("active");
+    });
+  }
 
-  modal?.addEventListener("click", (e) => {
-    if (e.target === modal) {
-      modal.classList.remove("active");
-    }
-  });
+  if (modal) {
+    modal.addEventListener("click", (e) => {
+      if (e.target === modal) {
+        modal.classList.remove("active");
+      }
+    });
+  }
 </script>
