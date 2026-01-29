@@ -7,7 +7,15 @@
 
     a{
         color: white;
-        text-decoration: none;
+        text-decoration: underline;
+        text-underline-offset: 3px;
         font-weight: bold;
+        transition: color 0.3s ease, text-decoration-color 0.3s ease;
+    }
+
+    a:hover {
+        color: #FFE4B5;
+        text-decoration-color: #FFE4B5;
+        cursor: pointer;
     }
 }
