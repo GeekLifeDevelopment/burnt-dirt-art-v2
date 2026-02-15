@@ -75,6 +75,11 @@
         overflow-x: hidden;
     }
 
+    .navContent {
+        flex-direction: column;
+        align-items: center;
+    }
+
     .navHeader {
         width: 100%;
     }
@@ -84,18 +89,27 @@
     }
 
     .navList {
-        display: none;
+        display: flex;
         flex-direction: column;
+        align-items: center;
         background-color: transparent;
-        padding: 1rem 0;
+        padding: 0 1rem;
         gap: 1rem;
         margin: 0;
         width: 100%;
         box-sizing: border-box;
+        max-height: 0;
+        overflow: hidden;
+        opacity: 0;
+        transform: translateY(-10px);
+        transition: max-height 0.4s ease-in-out, opacity 0.4s ease-in-out, transform 0.4s ease-in-out, padding 0.4s ease-in-out;
     }
 
     .navList.active {
-        display: flex;
+        max-height: 500px;
+        opacity: 1;
+        transform: translateY(0);
+        padding: 1rem;
     }
 }
 
@@ -115,6 +129,7 @@
     }
 
     .navList a {
-        font-size: 0.9rem;
+        font-size: 1.25rem;
+        text-align: center;
     }
 }
