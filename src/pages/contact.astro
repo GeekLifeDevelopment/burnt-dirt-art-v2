@@ -5,9 +5,14 @@ import Layout from '../layouts/Layout.astro';
 <Layout>
     <div class="contactContainer">
         <h1>Contact</h1>
+        
+        <div id="successMessage" class="successMessage hidden">
+            <p>✓ Thank you for your message! I'll get back to you soon.</p>
+        </div>
+        
         <p>Questions or purchase inquiries? Send me a message!</p>
         
-        <form name="contact" method="POST" data-netlify="true" netlify-honeypot="bot-field">
+        <form name="contact" method="POST" data-netlify="true" netlify-honeypot="bot-field" action="/contact?success=true">
             <input type="hidden" name="form-name" value="contact" />
             <p class="hidden">
                 <label>Don't fill this out if you're human: <input name="bot-field" /></label>
@@ -52,6 +57,20 @@ import Layout from '../layouts/Layout.astro';
     
     .hidden {
         display: none;
+    }
+    
+    .successMessage {
+        background-color: #d4edda;
+        border: 1px solid #c3e6cb;
+        color: #155724;
+        padding: 1rem;
+        border-radius: 4px;
+        margin-bottom: 2rem;
+    }
+    
+    .successMessage p {
+        margin: 0;
+        color: #155724;
     }
     
     form {
@@ -113,3 +132,21 @@ import Layout from '../layouts/Layout.astro';
         }
     }
 </style>
+
+<script>
+    // Check if form was successfully submitted
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('success') === 'true') {
+        const successMessage = document.getElementById('successMessage');
+        if (successMessage) {
+            successMessage.classList.remove('hidden');
+            // Scroll to top to show the message
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        // Clear the form
+        const form = document.querySelector('form[name="contact"]');
+        if (form) {
+            form.reset();
+        }
+    }
+</script>
