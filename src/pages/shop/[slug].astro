@@ -68,12 +68,30 @@ const productLink = typeof item.fields.productLink === 'string'
     <div class="productContainer">
         <div class="productContent">
             <div class="imageSection">
-                {item.fields.image && (
-                    <img 
-                        src={`https:${item.fields.image.fields.file.url}`}
-                        alt={item.fields.title || item.fields.inventoryCode}
-                        class="productImage"
-                    />
+                {item.fields.images && item.fields.images.length > 0 && (
+                    <div class="imageCarousel">
+                        <div class="imageContainer">
+                            {item.fields.images.map((image: any, index: number) => (
+                                <img 
+                                    src={`https:${image.fields.file.url}`}
+                                    alt={`${item.fields.title || item.fields.inventoryCode} - Image ${index + 1}`}
+                                    class={`productImage ${index === 0 ? 'active' : ''}`}
+                                    data-index={index}
+                                />
+                            ))}
+                        </div>
+                        {item.fields.images.length > 1 && (
+                            <div class="carouselDots">
+                                {item.fields.images.map((_: any, index: number) => (
+                                    <button 
+                                        class={`dot ${index === 0 ? 'active' : ''}`}
+                                        data-index={index}
+                                        aria-label={`View image ${index + 1}`}
+                                    ></button>
+                                ))}
+                            </div>
+                        )}
+                    </div>
                 )}
             </div>
             
@@ -136,11 +154,61 @@ const productLink = typeof item.fields.productLink === 'string'
         height: fit-content;
     }
 
-    .productImage {
+    .imageCarousel {
+        position: relative;
+    }
+
+    .imageContainer {
+        position: relative;
         width: 100%;
-        height: auto;
+        aspect-ratio: 1;
+        overflow: hidden;
         border-radius: 8px;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .productImage {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        opacity: 0;
+        transition: opacity 0.3s ease-in-out;
+        border-radius: 8px;
+    }
+
+    .productImage.active {
+        opacity: 1;
+        position: relative;
+    }
+
+    .carouselDots {
+        display: flex;
+        justify-content: center;
+        gap: 0.5rem;
+        margin-top: 1rem;
+    }
+
+    .dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background-color: #d0d0d0;
+        border: none;
+        cursor: pointer;
+        transition: background-color 0.3s, transform 0.2s;
+        padding: 0;
+    }
+
+    .dot:hover {
+        background-color: #a0a0a0;
+        transform: scale(1.2);
+    }
+
+    .dot.active {
+        background-color: rgb(182, 84, 48);
     }
 
     .detailsSection h1 {
@@ -222,3 +290,26 @@ const productLink = typeof item.fields.productLink === 'string'
         }
     }
 </style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const dots = document.querySelectorAll('.dot');
+        const images = document.querySelectorAll('.productImage');
+        
+        if (dots.length === 0 || images.length === 0) return;
+        
+        dots.forEach((dot) => {
+            dot.addEventListener('click', () => {
+                const index = parseInt(dot.getAttribute('data-index') || '0');
+                
+                // Remove active class from all images and dots
+                images.forEach(img => img.classList.remove('active'));
+                dots.forEach(d => d.classList.remove('active'));
+                
+                // Add active class to selected image and dot
+                images[index].classList.add('active');
+                dot.classList.add('active');
+            });
+        });
+    });
+</script>

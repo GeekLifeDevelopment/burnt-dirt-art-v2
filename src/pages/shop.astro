@@ -49,9 +49,9 @@ try {
                 <div class="shopGrid">
                     {shopItems.map((item) => (
                         <div class="shopItem" data-category={item.fields.category || 'uncategorized'}>
-                            {item.fields.image && (
+                            {item.fields.images && item.fields.images.length > 0 && (
                                 <img 
-                                    src={`https:${item.fields.image.fields.file.url}`}
+                                    src={`https:${item.fields.images[0].fields.file.url}`}
                                     alt={item.fields.title || item.fields.inventoryCode}
                                 />
                             )}
