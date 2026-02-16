@@ -1,0 +1,195 @@
+---
+import Layout from '../layouts/Layout.astro';
+import * as contentful from 'contentful';
+
+// Get environment variables with fallbacks for Netlify builds
+const space = import.meta.env.CONTENTFUL_SPACE_ID || process.env.CONTENTFUL_SPACE_ID;
+const accessToken = import.meta.env.CONTENTFUL_ACCESS_TOKEN || process.env.CONTENTFUL_ACCESS_TOKEN;
+
+// Check if credentials are available
+if (!space || !accessToken) {
+  throw new Error(
+    'Missing Contentful credentials. Please set CONTENTFUL_SPACE_ID and CONTENTFUL_ACCESS_TOKEN ' +
+    'in your Netlify site settings under Build & deploy → Environment → Environment variables.'
+  );
+}
+
+// Initialize Contentful client
+const client = contentful.createClient({
+  space,
+  accessToken
+});
+
+// Fetch shop items from Contentful
+let shopItems: any[] = [];
+let categories: string[] = [];
+try {
+  const entries = await client.getEntries({ 
+    content_type: 'artProduct'
+  });
+  shopItems = entries.items;
+  
+  // Extract unique categories
+  const categorySet = new Set<string>();
+  shopItems.forEach(item => {
+    if (item.fields.category) {
+      categorySet.add(item.fields.category);
+    }
+  });
+  categories = Array.from(categorySet).sort();
+} catch (error) {
+  console.error('Error fetching Contentful data:', error);
+}
+---
+
+<Layout>
+    <div class="shopContainer">
+        <h1>Shop</h1>
+        
+        {shopItems.length > 0 ? (
+            <>
+                <div class="filterContainer">
+                    <label for="categoryFilter">Filter by Category:</label>
+                    <select id="categoryFilter">
+                        <option value="all">All Categories</option>
+                        {categories.map(category => (
+                            <option value={category}>{category}</option>
+                        ))}
+                    </select>
+                </div>
+                
+                <div class="shopGrid">
+                    {shopItems.map((item) => (
+                        <div class="shopItem" data-category={item.fields.category || 'uncategorized'}>
+                            {item.fields.images && item.fields.images.length > 0 && (
+                                <img 
+                                    src={`https:${item.fields.images[0].fields.file.url}`}
+                                    alt={item.fields.title || item.fields.inventoryCode}
+                                />
+                            )}
+                            <h3>{item.fields.title || item.fields.inventoryCode}</h3>
+                            {item.fields.price && (
+                                <p class="price">${item.fields.price}</p>
+                            )}
+                            {item.fields.inventoryCode ? (
+                                <a href={`/shop/${item.fields.inventoryCode}`} class="detailsLink">
+                                    Click for more details
+                                </a>
+                            ) : (
+                                <span class="noLink">Details unavailable</span>
+                            )}
+                        </div>
+                    ))}
+                </div>
+            </>
+        ) : (
+            <p>Visit my eBay store to purchase original artwork and prints: <a href="https://www.ebay.com/sch/i.html?_ssn=burnt-dirt-art" target="_blank" rel="noopener noreferrer">Burnt Dirt Art on eBay</a></p>
+        )}
+    </div>
+
+    
+</Layout>
+
+<script>
+    const categoryFilter = document.getElementById('categoryFilter') as HTMLSelectElement;
+    const shopItems = document.querySelectorAll('.shopItem');
+
+    categoryFilter?.addEventListener('change', () => {
+        const selectedCategory = categoryFilter.value;
+
+        shopItems.forEach((item) => {
+            const itemCategory = item.getAttribute('data-category');
+            
+            if (selectedCategory === 'all' || itemCategory === selectedCategory) {
+                (item as HTMLElement).style.display = 'block';
+            } else {
+                (item as HTMLElement).style.display = 'none';
+            }
+        });
+    });
+</script>
+
+<style>
+    .shopContainer {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    .filterContainer {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin: 1.5rem 0;
+        padding: 1rem;
+        background-color: #f5f5f5;
+        border-radius: 8px;
+    }
+
+    .filterContainer label {
+        font-weight: bold;
+        color: rgb(182, 84, 48);
+    }
+
+    .filterContainer select {
+        padding: 0.5rem 1rem;
+        border: 2px solid rgb(182, 84, 48);
+        border-radius: 4px;
+        font-size: 1rem;
+        background-color: white;
+        cursor: pointer;
+    }
+
+    .filterContainer select:focus {
+        outline: none;
+        border-color: rgb(150, 60, 30);
+    }
+
+    .shopGrid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 2rem;
+        margin-top: 2rem;
+    }
+
+    .shopItem {
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 1rem;
+        text-align: center;
+    }
+
+    .shopItem img {
+        width: 100%;
+        height: 300px;
+        object-fit: cover;
+        border-radius: 4px;
+    }
+
+    .shopItem h3 {
+        margin: 1rem 0 0.5rem;
+    }
+
+    .price {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: rgb(182, 84, 48);
+        margin: 0.5rem 0;
+    }
+
+    .detailsLink {
+        display: inline-block;
+        margin-top: 0.5rem;
+        padding: 0.5rem 1rem;
+        background-color: rgb(182, 84, 48);
+        color: white;
+        text-decoration: none;
+        border-radius: 4px;
+        transition: background-color 0.3s;
+        font-size: 0.9rem;
+    }
+
+    .detailsLink:hover {
+        background-color: rgb(150, 60, 30);
+    }
+</style>

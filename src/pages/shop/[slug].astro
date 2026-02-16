@@ -1,0 +1,327 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import * as contentful from 'contentful';
+
+export async function getStaticPaths() {
+  // Get environment variables with fallbacks for Netlify builds
+  const space = import.meta.env.CONTENTFUL_SPACE_ID || process.env.CONTENTFUL_SPACE_ID;
+  const accessToken = import.meta.env.CONTENTFUL_ACCESS_TOKEN || process.env.CONTENTFUL_ACCESS_TOKEN;
+  
+  // Check if credentials are available
+  if (!space || !accessToken) {
+    throw new Error(
+      'Missing Contentful credentials. Please set CONTENTFUL_SPACE_ID and CONTENTFUL_ACCESS_TOKEN ' +
+      'in your Netlify site settings under Build & deploy → Environment → Environment variables.'
+    );
+  }
+  
+  const client = contentful.createClient({
+    space,
+    accessToken
+  });
+
+  try {
+    const entries = await client.getEntries({ 
+      content_type: 'artProduct'
+    });
+
+    console.log(`Building ${entries.items.length} product pages`);
+    
+    return entries.items
+      .filter((item: any) => item.fields.inventoryCode) // Only include items with inventoryCode
+      .map((item: any) => {
+        console.log(`Creating page for: ${item.fields.inventoryCode} - ${item.fields.title || 'Untitled'}`);
+        return {
+          params: { slug: item.fields.inventoryCode },
+          props: { item }
+        };
+      });
+  } catch (error) {
+    console.error('Error fetching products for static paths:', error);
+    return [];
+  }
+}
+
+// Helper function to extract plain text from Contentful rich text
+function extractText(richText: any): string {
+  if (!richText || !richText.content) return '';
+  
+  let text = '';
+  const traverse = (node: any) => {
+    if (node.nodeType === 'text') {
+      text += node.value;
+    }
+    if (node.content && Array.isArray(node.content)) {
+      node.content.forEach((child: any) => {
+        traverse(child);
+        // Add line breaks after paragraphs and headings
+        if (['paragraph', 'heading-1', 'heading-2', 'heading-3'].includes(child.nodeType)) {
+          text += '\n';
+        }
+      });
+    }
+  };
+  traverse(richText);
+  return text.trim();
+}
+
+const { item } = Astro.props;
+const description = typeof item.fields.description === 'string' 
+  ? item.fields.description 
+  : extractText(item.fields.description);
+
+// Extract URL from productLink if it's an object
+const productLink = typeof item.fields.productLink === 'string'
+  ? item.fields.productLink
+  : extractText(item.fields.productLink);
+---
+
+<Layout>
+    <div class="productContainer">
+        <div class="productContent">
+            <div class="imageSection">
+                {item.fields.images && item.fields.images.length > 0 && (
+                    <div class="imageCarousel">
+                        <div class="imageContainer">
+                            {item.fields.images.map((image: any, index: number) => (
+                                <img 
+                                    src={`https:${image.fields.file.url}`}
+                                    alt={`${item.fields.title || item.fields.inventoryCode} - Image ${index + 1}`}
+                                    class={`productImage ${index === 0 ? 'active' : ''}`}
+                                    data-index={index}
+                                />
+                            ))}
+                        </div>
+                        {item.fields.images.length > 1 && (
+                            <div class="carouselDots">
+                                {item.fields.images.map((_: any, index: number) => (
+                                    <button 
+                                        class={`dot ${index === 0 ? 'active' : ''}`}
+                                        data-index={index}
+                                        aria-label={`View image ${index + 1}`}
+                                    ></button>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                )}
+            </div>
+            
+            <div class="detailsSection">
+                <h1>{item.fields.title || item.fields.inventoryCode}</h1>
+                
+                {item.fields.price && (
+                    <p class="price">${item.fields.price}</p>
+                )}
+                
+                {item.fields.dimensions && (
+                    <div class="detailItem">
+                        <strong>Dimensions:</strong> {item.fields.dimensions}
+                    </div>
+                )}
+                
+                {item.fields.dateCompleted && (
+                    <div class="detailItem">
+                        <strong>Completed:</strong> {new Date(item.fields.dateCompleted).toLocaleDateString()}
+                    </div>
+                )}
+                
+                {description && (
+                    <div class="description">
+                        <h3>Description</h3>
+                        <p style="white-space: pre-wrap;">{description}</p>
+                    </div>
+                )}
+                
+                <div class="actions">
+                    {productLink && (
+                        <a href={productLink} target="_blank" rel="noopener noreferrer" class="ebayButton">
+                            View on eBay
+                        </a>
+                    )}
+                    <a href="/shop" class="backButton">Back to Shop</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</Layout>
+
+<style>
+    .productContainer {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    .productContent {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 3rem;
+        margin-top: 2rem;
+    }
+
+    .imageSection {
+        position: sticky;
+        top: 2rem;
+        height: fit-content;
+    }
+
+    .imageCarousel {
+        position: relative;
+    }
+
+    .imageContainer {
+        position: relative;
+        width: 100%;
+        aspect-ratio: 1;
+        overflow: hidden;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .productImage {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        opacity: 0;
+        transition: opacity 0.3s ease-in-out;
+        border-radius: 8px;
+    }
+
+    .productImage.active {
+        opacity: 1;
+        position: relative;
+    }
+
+    .carouselDots {
+        display: flex;
+        justify-content: center;
+        gap: 0.5rem;
+        margin-top: 1rem;
+    }
+
+    .dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background-color: #d0d0d0;
+        border: none;
+        cursor: pointer;
+        transition: background-color 0.3s, transform 0.2s;
+        padding: 0;
+    }
+
+    .dot:hover {
+        background-color: #a0a0a0;
+        transform: scale(1.2);
+    }
+
+    .dot.active {
+        background-color: rgb(182, 84, 48);
+    }
+
+    .detailsSection h1 {
+        margin-top: 0;
+        color: rgb(182, 84, 48);
+    }
+
+    .price {
+        font-size: 2rem;
+        font-weight: bold;
+        color: rgb(182, 84, 48);
+        margin: 1rem 0;
+    }
+
+    .detailItem {
+        margin: 1rem 0;
+        font-size: 1.1rem;
+    }
+
+    .description {
+        margin: 2rem 0;
+    }
+
+    .description h3 {
+        color: rgb(182, 84, 48);
+        margin-bottom: 0.5rem;
+    }
+
+    .description p {
+        line-height: 1.6;
+        color: #333;
+    }
+
+    .actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2rem;
+    }
+
+    .ebayButton, .backButton {
+        display: inline-block;
+        padding: 0.75rem 1.5rem;
+        text-decoration: none;
+        border-radius: 4px;
+        font-weight: bold;
+        transition: background-color 0.3s;
+    }
+
+    .ebayButton {
+        background-color: rgb(182, 84, 48);
+        color: white;
+    }
+
+    .ebayButton:hover {
+        background-color: rgb(150, 60, 30);
+    }
+
+    .backButton {
+        background-color: #e0e0e0;
+        color: #333;
+    }
+
+    .backButton:hover {
+        background-color: #d0d0d0;
+    }
+
+    @media (max-width: 768px) {
+        .productContent {
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+
+        .imageSection {
+            position: static;
+        }
+
+        .actions {
+            flex-direction: column;
+        }
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const dots = document.querySelectorAll('.dot');
+        const images = document.querySelectorAll('.productImage');
+        
+        if (dots.length === 0 || images.length === 0) return;
+        
+        dots.forEach((dot) => {
+            dot.addEventListener('click', () => {
+                const index = parseInt(dot.getAttribute('data-index') || '0');
+                
+                // Remove active class from all images and dots
+                images.forEach(img => img.classList.remove('active'));
+                dots.forEach(d => d.classList.remove('active'));
+                
+                // Add active class to selected image and dot
+                images[index].classList.add('active');
+                dot.classList.add('active');
+            });
+        });
+    });
+</script>
