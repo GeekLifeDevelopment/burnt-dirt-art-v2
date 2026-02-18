@@ -29,11 +29,15 @@ try {
   });
   shopItems = entries.items;
   
-  // Extract unique categories
+  // Extract unique categories with normalization
   const categorySet = new Set<string>();
   shopItems.forEach(item => {
     if (item.fields.category) {
-      categorySet.add(item.fields.category);
+      // Convert to string, trim whitespace and normalize the category
+      const normalizedCategory = String(item.fields.category).trim();
+      if (normalizedCategory) {
+        categorySet.add(normalizedCategory);
+      }
     }
   });
   categories = Array.from(categorySet).sort();
@@ -60,7 +64,7 @@ try {
                 
                 <div class="shopGrid">
                     {shopItems.map((item) => (
-                        <div class="shopItem" data-category={item.fields.category || 'uncategorized'}>
+                        <div class="shopItem" data-category={item.fields.category ? String(item.fields.category).trim() : 'uncategorized'}>
                             {item.fields.images && item.fields.images.length > 0 && (
                                 <img 
                                     src={`https:${item.fields.images[0].fields.file.url}`}
