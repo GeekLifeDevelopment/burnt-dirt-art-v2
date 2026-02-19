@@ -1,13 +1,22 @@
 @import url('https://fonts.googleapis.com/css2?family=Poiret+One&display=swap');
 @import '@fortawesome/fontawesome-free/css/all.min.css';
 
+/* Global styles for all pages */
 body {
   font-family: "Poiret One", sans-serif;
+  font-size: 17.6px; /* Base font size for all text */
   background-color: rgb(195, 180, 154);
+  color: rgb(1, 7, 25); /* Main text color for all non-heading text */
+}
+
+/* Global heading styles - change color here to update all headings */
+h1, h2, h3, h4, h5, h6 {
+  color: rgb(1, 7, 25); /* Heading color for all pages */
 }
 
 .poiret-one-regular {
   font-family: "Poiret One", sans-serif;
   font-weight: 400;
   font-style: normal;
+  
 }
