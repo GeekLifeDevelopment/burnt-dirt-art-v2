@@ -141,7 +141,7 @@ import Layout from '../layouts/Layout.astro';
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
         // Clear the form
-        const form = document.querySelector('form[name="contact"]');
+        const form = document.querySelector('form[name="contact"]') as HTMLFormElement;
         if (form) {
             form.reset();
         }
