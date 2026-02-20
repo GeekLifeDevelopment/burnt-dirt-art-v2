@@ -91,18 +91,36 @@
     .navList {
         display: flex;
         flex-direction: column;
-        align-items: center;
+        align-items: stretch;
+        text-align: left;
         background-color: transparent;
         padding: 0 1rem;
         gap: 1rem;
-        margin: 0;
-        width: 100%;
+        margin: 0 auto;
+        width: max-content;
         box-sizing: border-box;
         max-height: 0;
         overflow: hidden;
         opacity: 0;
         transform: translateY(-10px);
         transition: max-height 0.4s ease-in-out, opacity 0.4s ease-in-out, transform 0.4s ease-in-out, padding 0.4s ease-in-out;
+    }
+
+    .navList li {
+        width: 100%;
+    }
+
+    .navList a {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 0.75rem;
+        width: 100%;
+    }
+
+    .navList a i {
+        width: 1.25rem;
+        text-align: center;
     }
 
     .navList.active {
@@ -130,6 +148,6 @@
 
     .navList a {
         font-size: 1.25rem;
-        text-align: center;
+        text-align: left;
     }
 }
