@@ -1,46 +1,41 @@
-# Astro Starter Kit: Basics
+# Burnt Dirt Art v2
 
-```sh
-npm create astro@latest -- --template basics
+Astro site for Burnt Dirt Art.
+
+## Setup
+
+1. Install dependencies:
+	- `npm install`
+2. Add environment variables (required for shop product data):
+	- `CONTENTFUL_SPACE_ID`
+	- `CONTENTFUL_ACCESS_TOKEN`
+3. Run locally:
+	- `npm run dev`
+
+You can place environment variables in a local `.env` file:
+
+```env
+CONTENTFUL_SPACE_ID=your_space_id
+CONTENTFUL_ACCESS_TOKEN=your_delivery_api_token
 ```
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+## Netlify deploy configuration
 
-## 🚀 Project Structure
+In Netlify, set the same variables in:
 
-Inside of your Astro project, you'll see the following folders and files:
+- Site settings → Build & deploy → Environment variables
 
-```text
-/
-├── public/
-│   └── favicon.svg
-├── src
-│   ├── assets
-│   │   └── astro.svg
-│   ├── components
-│   │   └── Welcome.astro
-│   ├── layouts
-│   │   └── Layout.astro
-│   └── pages
-│       └── index.astro
-└── package.json
-```
+Required keys:
 
-To learn more about the folder structure of an Astro project, refer to [our guide on project structure](https://docs.astro.build/en/basics/project-structure/).
+- `CONTENTFUL_SPACE_ID`
+- `CONTENTFUL_ACCESS_TOKEN`
 
-## 🧞 Commands
+After adding them, trigger a new deploy.
 
-All commands are run from the root of the project, from a terminal:
+If these keys are missing, the build now completes but product-driven shop pages will not be generated.
 
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
+## Commands
 
-## 👀 Want to learn more?
-
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+- `npm run dev` - Start dev server
+- `npm run build` - Build production site
+- `npm run preview` - Preview production build

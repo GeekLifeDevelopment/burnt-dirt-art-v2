@@ -9,10 +9,11 @@ export async function getStaticPaths() {
   
   // Check if credentials are available
   if (!space || !accessToken) {
-    throw new Error(
-      'Missing Contentful credentials. Please set CONTENTFUL_SPACE_ID and CONTENTFUL_ACCESS_TOKEN ' +
-      'in your Netlify site settings under Build & deploy → Environment → Environment variables.'
-    );
+        console.warn(
+            'Missing Contentful credentials. Returning no static shop detail pages. ' +
+            'Set CONTENTFUL_SPACE_ID and CONTENTFUL_ACCESS_TOKEN in Netlify environment variables.'
+        );
+        return [];
   }
   
   const client = contentful.createClient({
