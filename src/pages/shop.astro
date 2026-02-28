@@ -38,6 +38,29 @@ function toText(value: any): string {
     if (typeof value === 'string') return value.trim();
     return extractText(value);
 }
+
+function parseSaleState(item: any): { isSold: boolean; isForSale: boolean } {
+    if (typeof item.fields.forSale === 'boolean') {
+        return { isSold: !item.fields.forSale, isForSale: item.fields.forSale };
+    }
+
+    if (item.fields.sold === true) {
+        return { isSold: true, isForSale: false };
+    }
+
+    const saleValue = String(item.fields.sale ?? item.fields.status ?? '').trim().toLowerCase();
+
+    if (saleValue.includes('sold')) {
+        return { isSold: true, isForSale: false };
+    }
+
+    if (item.fields.forSale === true || item.fields.sale === true || saleValue.includes('for sale') || saleValue === 'sale') {
+        return { isSold: false, isForSale: true };
+    }
+
+    return { isSold: false, isForSale: false };
+}
+
 if (!space || !accessToken) {
     console.warn(
         'Missing Contentful credentials. Shop page will render without product data. ' +
@@ -53,7 +76,10 @@ if (!space || !accessToken) {
         const entries = await client.getEntries({ 
             content_type: 'artProduct'
         });
-        shopItems = entries.items;
+        shopItems = entries.items.filter((item: any) => {
+            const { isSold } = parseSaleState(item);
+            return !isSold;
+        });
     
         // Extract unique categories with normalization
         const categorySet = new Set<string>();

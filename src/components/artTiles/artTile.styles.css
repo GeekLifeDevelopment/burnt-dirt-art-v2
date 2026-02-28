@@ -73,10 +73,10 @@
 .modalContent {
     position: relative;
     background-color: white;
-    padding: 2rem;
+    padding: 1.25rem;
     border-radius: 12px;
-    max-width: 90%;
-    max-height: 90vh;
+    width: min(760px, 92vw);
+    max-height: 85vh;
     overflow-y: auto;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
 }
@@ -105,16 +105,17 @@
 
 .modalImage {
     width: 100%;
-    max-width: 800px;
+    max-height: 56vh;
+    object-fit: contain;
     height: auto;
     border-radius: 8px;
-    margin-bottom: 1rem;
+    margin-bottom: 0.75rem;
 }
 
 .modalTitle {
-    font-size: 2rem;
+    font-size: 1.6rem;
     color: #333;
-    margin: 1rem 0;
+    margin: 0.5rem 0;
 }
 
 .modalDescription {
@@ -122,6 +123,25 @@
     color: #666;
     line-height: 1.6;
     margin: 0;
+}
+
+.modalActions {
+    margin-top: 0.85rem;
+}
+
+.storeButton {
+    display: inline-block;
+    padding: 0.75rem 1.25rem;
+    background-color: rgb(182, 84, 48);
+    color: #fff;
+    text-decoration: none;
+    border-radius: 6px;
+    font-weight: 600;
+    transition: background-color 0.3s ease;
+}
+
+.storeButton:hover {
+    background-color: rgb(150, 60, 30);
 }
 /* Tablet */
 @media (max-width: 768px) {

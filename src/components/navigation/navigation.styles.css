@@ -10,14 +10,32 @@
 
 .navContent {
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: flex-start;
+    position: relative;
 }
 
 .navHeader {
     display: flex;
-    
+    justify-content: space-between;
     align-items: center;
+    position: absolute;
+    left: 0;
+    top: 0;
+}
+
+.brandMark {
+    text-decoration: none;
+    color: rgb(36, 20, 12);
+    font-family: 'Shadows Into Light', cursive;
+    font-size: 2.6rem;
+    line-height: 1;
+    letter-spacing: 0.02em;
+    font-weight: 400;
+}
+
+.brandMark:hover {
+    opacity: 0.9;
 }
 
 .heading {
@@ -78,10 +96,13 @@
     .navContent {
         flex-direction: column;
         align-items: center;
+        position: static;
     }
 
     .navHeader {
         width: 100%;
+        justify-content: space-between;
+        position: static;
     }
 
     .hamburger {
@@ -133,6 +154,10 @@
 
 /* Mobile */
 @media (max-width: 480px) {
+    .brandMark {
+        font-size: 2rem;
+    }
+
     .navHeader {
         padding: 0;
     }
