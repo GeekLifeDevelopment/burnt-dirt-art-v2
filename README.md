@@ -9,6 +9,7 @@ Astro site for Burnt Dirt Art.
 2. Add environment variables (required for shop product data):
 	- `CONTENTFUL_SPACE_ID`
 	- `CONTENTFUL_ACCESS_TOKEN`
+	- `SITE_URL` (required for sitemap URL generation)
 3. Run locally:
 	- `npm run dev`
 
@@ -17,6 +18,7 @@ You can place environment variables in a local `.env` file:
 ```env
 CONTENTFUL_SPACE_ID=your_space_id
 CONTENTFUL_ACCESS_TOKEN=your_delivery_api_token
+SITE_URL=https://your-domain.com
 ```
 
 ## Netlify deploy configuration
@@ -29,6 +31,7 @@ Required keys:
 
 - `CONTENTFUL_SPACE_ID`
 - `CONTENTFUL_ACCESS_TOKEN`
+- `SITE_URL` (for example `https://your-domain.com`)
 
 After adding them, trigger a new deploy.
 
