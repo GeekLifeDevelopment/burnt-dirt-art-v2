@@ -1,99 +1,204 @@
 ---
 import "./allArtTiles.styles.css";
+import * as contentful from 'contentful';
 
-import gardenStakes from "../../assets/art/garden-stakes.jpg";
-import girlsOnBench from "../../assets/art/girlsonbench.jpg";
-import inkwashman from "../../assets/art/inkwashman.jpg";
-import girlCat from "../../assets/art/girl-with-cat.jpeg";
-import shellEarings from "../../assets/art/shellEarings.jpeg";
-import buckthorn from "../../assets/art/buckthorn.jpeg";
-import leafEarrings from "../../assets/art/leaves.jpeg";
-import leafEarrings2 from "../../assets/art/leafEarrings.png";
-import inProgress from "../../assets/art/inProgress.jpeg";
-import museum from "../../assets/art/museum.png";
-import wisconsinBreakfast from "../../assets/art/wisconsinBreakfast.png";
-import cookieCutters from "../../assets/art/cookieCutters.png";
+const space = import.meta.env.CONTENTFUL_SPACE_ID || process.env.CONTENTFUL_SPACE_ID;
+const accessToken = import.meta.env.CONTENTFUL_ACCESS_TOKEN || process.env.CONTENTFUL_ACCESS_TOKEN;
 
-const artPieces = [
-  {
-    src: girlCat,
-    title: "Girl with Cat $500 framed",
-    description: "Add your description here",
-  },
-  {
-    src: museum,
-    title: "At the Museum (In Progress)",
-    description: "Add your description here",
-  },
-  {
-    src: leafEarrings2,
-    title: "Leaf Earrings",
-    description: "Add your description here",
-  },
-  {
-    src: cookieCutters,
-    title: "Cookie Cutters",
-    description: "Add your description here",
-  },
-  {
-    src: wisconsinBreakfast,
-    title: "Wisconsin Breakfast",
-    description: "Add your description here",
-  },
-  {
-    src: leafEarrings,
-    title: "Leaf Earrings",
-    description: "Add your description here",
-  },
-  {
-    src: shellEarings,
-    title: "Wild Rose Earrings",
-    description: "Add your description here",
-  },
-  {
-    src: inProgress,
-    title: "In Progress",
-    description: "Add your description here",
-  },
-  {
-    src: buckthorn,
-    title: "Buckthorn",
-    description: "Add your description here",
-  },
-  {
-    src: gardenStakes,
-    title: "Garden Stakes",
-    description: "Add your description here",
-  },
-  {
-    src: girlsOnBench,
-    title: "Girls on Bench (Study)",
-    description: "Add your description here",
-  },
-  {
-    src: inkwashman,
-    title: "Ink Wash Man",
-    description: "Add your description here",
-  },
-];
+type GalleryPiece = {
+  imageUrl: string;
+  imageWidth?: number;
+  imageHeight?: number;
+  title: string;
+  description: string;
+  category: string;
+  storeUrl?: string;
+  isSold: boolean;
+};
+
+function extractText(richText: any): string {
+  if (!richText || !richText.content) return '';
+
+  let text = '';
+  const traverse = (node: any) => {
+    if (node.nodeType === 'text') {
+      text += node.value;
+    }
+    if (node.content && Array.isArray(node.content)) {
+      node.content.forEach((child: any) => {
+        traverse(child);
+        if (['paragraph', 'heading-1', 'heading-2', 'heading-3'].includes(child.nodeType)) {
+          text += '\n';
+        }
+      });
+    }
+  };
+
+  traverse(richText);
+  return text.trim();
+}
+
+function toText(value: any): string {
+  if (!value) return '';
+  if (typeof value === 'string') return value.trim();
+  return extractText(value);
+}
+
+function normalizeToList(value: any): string[] {
+  if (!value) return [];
+
+  if (Array.isArray(value)) {
+    return value
+      .map((entry) => (typeof entry === 'string' ? entry : String(entry ?? '')))
+      .map((entry) => entry.trim().toLowerCase())
+      .filter(Boolean);
+  }
+
+  if (typeof value === 'string') {
+    return value
+      .split(/[;,]/)
+      .map((entry) => entry.trim().toLowerCase())
+      .filter(Boolean);
+  }
+
+  return [String(value).trim().toLowerCase()].filter(Boolean);
+}
+
+function hasPageSelection(item: any, key: 'gallery' | 'shop' | 'store'): boolean {
+  const candidates = [
+    item.fields.page,
+    item.fields.pages,
+    item.fields.pageSection,
+    item.fields.pageSections,
+    item.fields.sections
+  ];
+
+  const values = candidates.flatMap((candidate) => normalizeToList(candidate));
+  if (values.includes(key)) return true;
+
+  if (key === 'shop' && values.includes('store')) return true;
+  if (key === 'store' && values.includes('shop')) return true;
+
+  return false;
+}
+
+function parseSaleState(item: any): { isSold: boolean; isForSale: boolean } {
+  if (typeof item.fields.forSale === 'boolean') {
+    return { isSold: !item.fields.forSale, isForSale: item.fields.forSale };
+  }
+
+  if (item.fields.sold === true) {
+    return { isSold: true, isForSale: false };
+  }
+
+  const saleValue = String(item.fields.sale ?? item.fields.status ?? '').trim().toLowerCase();
+
+  if (saleValue.includes('sold')) {
+    return { isSold: true, isForSale: false };
+  }
+
+  if (item.fields.forSale === true || item.fields.sale === true || saleValue.includes('for sale') || saleValue === 'sale') {
+    return { isSold: false, isForSale: true };
+  }
+
+  return { isSold: false, isForSale: false };
+}
+
+let artPieces: GalleryPiece[] = [];
+let categories: string[] = [];
+
+if (!space || !accessToken) {
+  console.warn(
+    'Missing Contentful credentials. Gallery will render without Contentful data. ' +
+      'Set CONTENTFUL_SPACE_ID and CONTENTFUL_ACCESS_TOKEN in environment variables.'
+  );
+} else {
+  const client = contentful.createClient({
+    space,
+    accessToken
+  });
+
+  try {
+    const entries = await client.getEntries({
+      content_type: 'artProduct'
+    });
+
+    artPieces = entries.items
+      .filter((item: any) => {
+        if (item.fields.gallery === true) return true;
+        return hasPageSelection(item, 'gallery');
+      })
+      .map((item: any) => {
+        const firstImage = item.fields.images?.[0];
+        const file = firstImage?.fields?.file;
+        const imageUrl = file?.url ? `https:${file.url}` : '';
+        const { isSold, isForSale } = parseSaleState(item);
+        const category = Array.isArray(item.fields.category)
+          ? String(item.fields.category[0] || '').trim()
+          : String(item.fields.category || '').trim();
+
+        return {
+          imageUrl,
+          imageWidth: file?.details?.image?.width,
+          imageHeight: file?.details?.image?.height,
+          title: item.fields.title || item.fields.inventoryCode || 'Untitled Artwork',
+          description: toText(item.fields.description),
+          category: category || 'Uncategorized',
+          storeUrl: isForSale && item.fields.inventoryCode ? `/shop/${item.fields.inventoryCode}` : undefined,
+          isSold
+        } satisfies GalleryPiece;
+      })
+      .filter((item: GalleryPiece) => Boolean(item.imageUrl));
+
+    const categorySet = new Set<string>();
+    artPieces.forEach((piece) => {
+      if (piece.category) {
+        categorySet.add(piece.category);
+      }
+    });
+    categories = Array.from(categorySet).sort();
+  } catch (error) {
+    console.error('Error fetching gallery items from Contentful:', error);
+  }
+}
 ---
 
 <div class="ArtTileContainer">
+  {categories.length > 0 && (
+    <div class="filterContainer">
+      <label for="galleryCategoryFilter">Filter by Category:</label>
+      <select id="galleryCategoryFilter">
+        <option value="all">All Categories</option>
+        {categories.map((category) => (
+          <option value={category}>{category}</option>
+        ))}
+      </select>
+    </div>
+  )}
+
   <div class="artGrid">
     {
       artPieces.map((piece, index) => (
-        <div class="artCard" data-index={index}>
+        <div
+          class="artCard"
+          data-index={index}
+          data-title={piece.title}
+          data-category={piece.category}
+          data-store-url={piece.storeUrl || ''}
+          data-is-sold={piece.isSold ? 'true' : 'false'}
+        >
           <img
-            src={piece.src.src}
+            src={piece.imageUrl}
             alt={piece.title}
             class="artImage"
-            width={piece.src.width}
-            height={piece.src.height}
+            width={piece.imageWidth}
+            height={piece.imageHeight}
             loading="lazy"
             decoding="async"
           />
+          {piece.isSold && <span class="soldBadge">SOLD</span>}
+          {!piece.isSold && <span class="forSaleBadge">For Sale</span>}
           <h3 class="artTitle">{piece.title}</h3>
-          <p class="artDescription">{piece.description}</p>
         </div>
       ))
     }
@@ -106,93 +211,62 @@ const artPieces = [
     <button class="closeBtn" id="galleryCloseBtn">&times;</button>
     <img src="" alt="" class="modalImage" id="galleryModalImage" />
     <h2 class="modalTitle" id="galleryModalTitle"></h2>
-    <p class="modalDescription" id="galleryModalDescription"></p>
+    <p class="soldMarker" id="gallerySoldMarker">SOLD</p>
+    <div class="modalActions" id="galleryModalActions"></div>
   </div>
 </div>
 
 <script>
-  const artPieces = [
-    {
-      src: "/src/assets/art/girl-with-cat.jpeg",
-      title: "Girl with Cat",
-      description: "Add your description here",
-    },
-    {
-      src: "/src/assets/art/museum.png",
-      title: "At the Museum (In Progress)",
-      description: "Add your description here",
-    },
-    {
-      src: "/src/assets/art/leafEarrings.png",
-      title: "Leaf Earrings",
-      description: "Add your description here",
-    },
-    {
-      src: "/src/assets/art/cookieCutters.png",
-      title: "Cookie Cutters",
-      description: "Add your description here",
-    },
-    {
-      src: "/src/assets/art/wisconsinBreakfast.png",
-      title: "Wisconsin Breakfast",
-      description: "Add your description here",
-    },
-    {
-      src: "/src/assets/art/leaves.jpeg",
-      title: "Leaf Earrings",
-      description: "Add your description here",
-    },
-    {
-      src: "/src/assets/art/shellEarings.jpeg",
-      title: "Wild Rose Earrings",
-      description: "Add your description here",
-    },
-    {
-      src: "/src/assets/art/inProgress.jpeg",
-      title: "In Progress",
-      description: "Add your description here",
-    },
-    {
-      src: "/src/assets/art/buckthorn.jpeg",
-      title: "Buckthorn",
-      description: "Add your description here",
-    },
-    {
-      src: "/src/assets/art/garden-stakes.jpg",
-      title: "Garden Stakes",
-      description: "Add your description here",
-    },
-    {
-      src: "/src/assets/art/girlsonbench.jpg",
-      title: "Girls on Bench (Study)",
-      description: "Add your description here",
-    },
-    {
-      src: "/src/assets/art/inkwashman.jpg",
-      title: "Ink Wash Man",
-      description: "Add your description here",
-    },
-  ];
-
   const modal = document.getElementById("galleryModal");
   const modalImage = document.getElementById("galleryModalImage");
   const modalTitle = document.getElementById("galleryModalTitle");
-  const modalDescription = document.getElementById("galleryModalDescription");
+  const soldMarker = document.getElementById("gallerySoldMarker");
+  const modalActions = document.getElementById("galleryModalActions");
   const closeBtn = document.getElementById("galleryCloseBtn");
+  const categoryFilter = document.getElementById("galleryCategoryFilter") as HTMLSelectElement;
   const artCards = document.querySelectorAll(".artCard");
+
+  categoryFilter?.addEventListener("change", () => {
+    const selectedCategory = categoryFilter.value;
+
+    artCards.forEach((card) => {
+      const itemCategory = card.getAttribute("data-category");
+
+      if (selectedCategory === "all" || itemCategory === selectedCategory) {
+        (card as HTMLElement).style.display = "block";
+      } else {
+        (card as HTMLElement).style.display = "none";
+      }
+    });
+  });
 
   artCards.forEach((card) => {
     card.addEventListener("click", () => {
-      const index = parseInt(card.getAttribute("data-index") || "0");
-      const piece = artPieces[index];
+      const title = card.getAttribute("data-title") || "";
+      const storeUrl = card.getAttribute("data-store-url") || "";
+      const isSold = card.getAttribute("data-is-sold") === "true";
 
       const imgElement = card.querySelector(".artImage") as HTMLImageElement;
       if (imgElement) {
         (modalImage as HTMLImageElement).src = imgElement.src;
-        (modalImage as HTMLImageElement).alt = piece.title;
+        (modalImage as HTMLImageElement).alt = title;
       }
-      if (modalTitle) modalTitle.textContent = piece.title;
-      if (modalDescription) modalDescription.textContent = piece.description;
+      if (modalTitle) modalTitle.textContent = title;
+
+      if (soldMarker) {
+        soldMarker.style.display = isSold ? "inline-block" : "none";
+      }
+
+      if (modalActions) {
+        modalActions.innerHTML = "";
+        if (!isSold && storeUrl) {
+          const storeButton = document.createElement("a");
+          storeButton.href = storeUrl;
+          storeButton.className = "storeButton";
+          storeButton.textContent = "View Store Listing";
+          modalActions.appendChild(storeButton);
+        }
+      }
 
       modal?.classList.add("active");
     });

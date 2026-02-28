@@ -4,6 +4,28 @@ import * as contentful from 'contentful';
 import { artistName } from '../../config/seo';
 
 export async function getStaticPaths() {
+    const parseSaleState = (item: any): { isSold: boolean; isForSale: boolean } => {
+        if (typeof item.fields.forSale === 'boolean') {
+            return { isSold: !item.fields.forSale, isForSale: item.fields.forSale };
+        }
+
+        if (item.fields.sold === true) {
+            return { isSold: true, isForSale: false };
+        }
+
+        const saleValue = String(item.fields.sale ?? item.fields.status ?? '').trim().toLowerCase();
+
+        if (saleValue.includes('sold')) {
+            return { isSold: true, isForSale: false };
+        }
+
+        if (item.fields.forSale === true || item.fields.sale === true || saleValue.includes('for sale') || saleValue === 'sale') {
+            return { isSold: false, isForSale: true };
+        }
+
+        return { isSold: false, isForSale: false };
+    };
+
   // Get environment variables with fallbacks for Netlify builds
   const space = import.meta.env.CONTENTFUL_SPACE_ID || process.env.CONTENTFUL_SPACE_ID;
   const accessToken = import.meta.env.CONTENTFUL_ACCESS_TOKEN || process.env.CONTENTFUL_ACCESS_TOKEN;
@@ -30,7 +52,11 @@ export async function getStaticPaths() {
     console.log(`Building ${entries.items.length} product pages`);
     
     return entries.items
-      .filter((item: any) => item.fields.inventoryCode) // Only include items with inventoryCode
+            .filter((item: any) => {
+                if (!item.fields.inventoryCode) return false;
+                const { isSold } = parseSaleState(item);
+                return !isSold;
+            })
       .map((item: any) => {
         console.log(`Creating page for: ${item.fields.inventoryCode} - ${item.fields.title || 'Untitled'}`);
         return {
