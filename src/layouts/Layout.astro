@@ -2,6 +2,27 @@
 import Navigation from "../components/navigation/Navigation.astro";
 import '../styles/global.styles.css';
 import Footer from '../components/footer/Footer.astro';
+import SEO from '../components/SEO.astro';
+
+interface Props {
+  pageTitle?: string;
+  description?: string;
+  canonicalPath?: string;
+  image?: string;
+  noindex?: boolean;
+  ogType?: 'website' | 'article' | 'product';
+  pageSchema?: Record<string, any> | Array<Record<string, any>>;
+}
+
+const {
+  pageTitle,
+  description,
+  canonicalPath,
+  image,
+  noindex,
+  ogType,
+  pageSchema
+} = Astro.props;
 ---
 
 <!doctype html>
@@ -9,9 +30,16 @@ import Footer from '../components/footer/Footer.astro';
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
-    <!-- <link rel="icon" type="image/svg+xml" href="/favicon.svg" /> -->
     <meta name="generator" content={Astro.generator} />
-    <title>Burnt Dirt Art</title>
+    <SEO
+      pageTitle={pageTitle}
+      description={description}
+      canonicalPath={canonicalPath}
+      image={image}
+      noindex={noindex}
+      ogType={ogType}
+      pageSchema={pageSchema}
+    />
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-F4MGB19N8S"></script>
     <script is:inline>
       window.dataLayer = window.dataLayer || [];

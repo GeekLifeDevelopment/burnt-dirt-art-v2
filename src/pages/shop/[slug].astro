@@ -1,6 +1,7 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import * as contentful from 'contentful';
+import { artistName } from '../../config/seo';
 
 export async function getStaticPaths() {
   // Get environment variables with fallbacks for Netlify builds
@@ -75,9 +76,34 @@ const description = typeof item.fields.description === 'string'
 const productLink = typeof item.fields.productLink === 'string'
   ? item.fields.productLink
   : extractText(item.fields.productLink);
+
+const imageUrls = item.fields.images?.map((image: any) => `https:${image.fields.file.url}`) || [];
+const primaryImage = imageUrls[0];
+const siteUrl = Astro.site?.toString() || 'https://burntdirtart.com';
+
+const artworkSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'VisualArtwork',
+    name: item.fields.title || item.fields.inventoryCode,
+    image: imageUrls,
+    description: description || item.fields.title || item.fields.inventoryCode,
+    creator: {
+        '@type': 'Person',
+        name: artistName
+    },
+    artMedium: item.fields.category || undefined,
+    url: new URL(`/shop/${item.fields.inventoryCode}`, siteUrl).toString()
+};
 ---
 
-<Layout>
+<Layout
+        pageTitle={item.fields.title || item.fields.inventoryCode}
+        description={description || `View details for ${item.fields.title || item.fields.inventoryCode} from Burnt Dirt Art.`}
+        canonicalPath={`/shop/${item.fields.inventoryCode}`}
+        image={primaryImage}
+        ogType="product"
+        pageSchema={artworkSchema}
+>
     <div class="productContainer">
         <div class="productContent">
             <div class="imageSection">
@@ -90,6 +116,10 @@ const productLink = typeof item.fields.productLink === 'string'
                                     alt={`${item.fields.title || item.fields.inventoryCode} - Image ${index + 1}`}
                                     class={`productImage ${index === 0 ? 'active' : ''}`}
                                     data-index={index}
+                                    width={image.fields.file.details?.image?.width}
+                                    height={image.fields.file.details?.image?.height}
+                                    loading={index === 0 ? 'eager' : 'lazy'}
+                                    decoding="async"
                                 />
                             ))}
                         </div>
@@ -136,7 +166,7 @@ const productLink = typeof item.fields.productLink === 'string'
                 
                 <div class="actions">
                     {productLink && (
-                        <a href={productLink} target="_blank" rel="noopener noreferrer" class="ebayButton">
+                        <a href={productLink} target="_blank" rel="noopener noreferrer sponsored" class="ebayButton">
                             View on eBay
                         </a>
                     )}

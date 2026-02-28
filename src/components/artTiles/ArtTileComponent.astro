@@ -87,7 +87,15 @@ const artPieces = [
     {
       artPieces.map((piece, index) => (
         <div class="artCard" data-index={index}>
-          <img src={piece.src.src} alt={piece.title} class="artImage" />
+          <img
+            src={piece.src.src}
+            alt={piece.title}
+            class="artImage"
+            width={piece.src.width}
+            height={piece.src.height}
+            loading="lazy"
+            decoding="async"
+          />
           <h3 class="artTitle">{piece.title}</h3>
           <p class="artDescription">{piece.description}</p>
         </div>

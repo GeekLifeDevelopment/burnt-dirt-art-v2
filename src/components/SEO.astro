@@ -1,0 +1,84 @@
+---
+import { artistName, seoConfig } from '../config/seo';
+
+interface Props {
+  pageTitle?: string;
+  description?: string;
+  canonicalPath?: string;
+  image?: string;
+  noindex?: boolean;
+  ogType?: 'website' | 'article' | 'product';
+  themeColor?: string;
+  pageSchema?: Record<string, any> | Array<Record<string, any>>;
+}
+
+const {
+  pageTitle,
+  description,
+  canonicalPath,
+  image,
+  noindex = false,
+  ogType = 'website',
+  themeColor = '#7d534d',
+  pageSchema
+} = Astro.props;
+
+const siteUrl = (Astro.site?.toString() || seoConfig.siteUrl).replace(/\/$/, '');
+const canonicalUrl = new URL(canonicalPath || Astro.url.pathname, siteUrl).toString();
+const metaDescription = description || seoConfig.defaultDescription;
+const fullTitle = pageTitle
+  ? seoConfig.titleTemplate.replace('%s', pageTitle)
+  : seoConfig.defaultTitle;
+const ogImageUrl = new URL(image || seoConfig.defaultOgImage, siteUrl).toString();
+const robotsContent = noindex ? 'noindex, nofollow' : 'index, follow';
+
+const organizationSchema: Record<string, any> = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: seoConfig.siteName,
+  url: siteUrl,
+  logo: new URL('/favicon.svg', siteUrl).toString(),
+  sameAs: Object.values(seoConfig.socialLinks)
+};
+
+const websiteSchema: Record<string, any> = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: seoConfig.siteName,
+  url: siteUrl,
+  description: seoConfig.defaultDescription,
+  publisher: {
+    '@type': 'Organization',
+    name: seoConfig.siteName
+  },
+  creator: {
+    '@type': 'Person',
+    name: artistName
+  }
+};
+
+const pageSchemas = pageSchema ? (Array.isArray(pageSchema) ? pageSchema : [pageSchema]) : [];
+const schemas = [organizationSchema, websiteSchema, ...pageSchemas];
+---
+
+<title>{fullTitle}</title>
+<meta name="description" content={metaDescription} />
+<meta name="robots" content={robotsContent} />
+<meta name="theme-color" content={themeColor} />
+
+<link rel="canonical" href={canonicalUrl} />
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+<meta property="og:site_name" content={seoConfig.siteName} />
+<meta property="og:type" content={ogType} />
+<meta property="og:title" content={fullTitle} />
+<meta property="og:description" content={metaDescription} />
+<meta property="og:url" content={canonicalUrl} />
+<meta property="og:image" content={ogImageUrl} />
+
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content={fullTitle} />
+<meta name="twitter:description" content={metaDescription} />
+<meta name="twitter:image" content={ogImageUrl} />
+
+<script type="application/ld+json" is:inline set:html={JSON.stringify(schemas)}></script>

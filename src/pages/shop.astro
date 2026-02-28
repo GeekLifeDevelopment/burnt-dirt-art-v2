@@ -1,6 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import * as contentful from 'contentful';
+import { artistName } from '../config/seo';
 
 // Get environment variables with fallbacks for Netlify builds
 const space = import.meta.env.CONTENTFUL_SPACE_ID || process.env.CONTENTFUL_SPACE_ID;
@@ -9,6 +10,34 @@ const accessToken = import.meta.env.CONTENTFUL_ACCESS_TOKEN || process.env.CONTE
 // Fetch shop items from Contentful
 let shopItems: any[] = [];
 let categories: string[] = [];
+
+function extractText(richText: any): string {
+    if (!richText || !richText.content) return '';
+
+    let text = '';
+    const traverse = (node: any) => {
+        if (node.nodeType === 'text') {
+            text += node.value;
+        }
+        if (node.content && Array.isArray(node.content)) {
+            node.content.forEach((child: any) => {
+                traverse(child);
+                if (['paragraph', 'heading-1', 'heading-2', 'heading-3'].includes(child.nodeType)) {
+                    text += '\n';
+                }
+            });
+        }
+    };
+
+    traverse(richText);
+    return text.trim();
+}
+
+function toText(value: any): string {
+    if (!value) return '';
+    if (typeof value === 'string') return value.trim();
+    return extractText(value);
+}
 if (!space || !accessToken) {
     console.warn(
         'Missing Contentful credentials. Shop page will render without product data. ' +
@@ -42,11 +71,61 @@ if (!space || !accessToken) {
         console.error('Error fetching Contentful data:', error);
     }
 }
+
+const siteUrl = Astro.site?.toString() || 'https://burntdirtart.com';
+
+const itemListElements = shopItems
+    .map((item, index) => {
+        const externalUrl = toText(item.fields.productLink);
+        if (!externalUrl) return null;
+
+        const imageUrl = item.fields.images?.[0]?.fields?.file?.url
+            ? `https:${item.fields.images[0].fields.file.url}`
+            : undefined;
+
+        return {
+            '@type': 'ListItem',
+            position: index + 1,
+            item: {
+                '@type': 'VisualArtwork',
+                name: item.fields.title || item.fields.inventoryCode || 'Artwork Listing',
+                url: externalUrl,
+                image: imageUrl
+            }
+        };
+    })
+    .filter(Boolean);
+
+const pageSchema = itemListElements.length
+    ? {
+        '@context': 'https://schema.org',
+        '@type': 'ItemList',
+        name: 'Burnt Dirt Art eBay Listings',
+        url: new URL('/shop', siteUrl).toString(),
+        numberOfItems: itemListElements.length,
+        itemListElement: itemListElements,
+        author: {
+            '@type': 'Person',
+            name: artistName
+        }
+    }
+    : undefined;
 ---
 
-<Layout>
+<Layout
+    pageTitle="Shop Original Art"
+    description="Browse available Burnt Dirt Art pieces and visit eBay listings for purchase details, pricing, and current availability."
+    canonicalPath="/shop"
+    pageSchema={pageSchema}
+>
     <div class="shopContainer">
         <h1>Shop</h1>
+        <p class="shopIntro">
+            Browse current available work below. Purchases are completed through eBay listings, where you can view full details, shipping info, and current pricing.
+        </p>
+        <p class="shopUpdates">
+            Listings update regularly as new original pieces and handmade functional art are completed.
+        </p>
         
         {shopItems.length > 0 ? (
             <>
@@ -67,11 +146,25 @@ if (!space || !accessToken) {
                                 <img 
                                     src={`https:${item.fields.images[0].fields.file.url}`}
                                     alt={item.fields.title || item.fields.inventoryCode}
+                                    width={item.fields.images[0].fields.file.details?.image?.width}
+                                    height={item.fields.images[0].fields.file.details?.image?.height}
+                                    loading="lazy"
+                                    decoding="async"
                                 />
                             )}
                             <h3>{item.fields.title || item.fields.inventoryCode}</h3>
                             {item.fields.price && (
                                 <p class="price">${item.fields.price}</p>
+                            )}
+                            {toText(item.fields.productLink) && (
+                                <a
+                                    href={toText(item.fields.productLink)}
+                                    class="detailsLink ebayLink"
+                                    target="_blank"
+                                    rel="noopener noreferrer sponsored"
+                                >
+                                    View on eBay
+                                </a>
                             )}
                             {item.fields.inventoryCode ? (
                                 <a href={`/shop/${item.fields.inventoryCode}`} class="detailsLink">
@@ -85,7 +178,7 @@ if (!space || !accessToken) {
                 </div>
             </>
         ) : (
-            <p>Visit my eBay store to purchase original artwork and prints: <a href="https://www.ebay.com/sch/i.html?_ssn=burnt-dirt-art" target="_blank" rel="noopener noreferrer">Burnt Dirt Art on eBay</a></p>
+            <p>Visit my eBay store to purchase original artwork and prints: <a href="https://www.ebay.com/sch/i.html?_ssn=burnt-dirt-art" target="_blank" rel="noopener noreferrer sponsored">Burnt Dirt Art on eBay</a></p>
         )}
     </div>
 
@@ -153,6 +246,13 @@ if (!space || !accessToken) {
         margin-top: 2rem;
     }
 
+    .shopIntro,
+    .shopUpdates {
+        max-width: 850px;
+        line-height: 1.6;
+        margin-top: 0.5rem;
+    }
+
     .shopItem {
         border: 1px solid #ddd;
         border-radius: 8px;
@@ -192,5 +292,9 @@ if (!space || !accessToken) {
 
     .detailsLink:hover {
         background-color: rgb(150, 60, 30);
+    }
+
+    .ebayLink {
+        margin-right: 0.5rem;
     }
 </style>

@@ -3,7 +3,39 @@ import Layout from '../layouts/Layout.astro';
 import AllArtTilesComponent from '../components/allArtTiles/allArtTilesComponent.astro';
 ---
 
-<Layout>
-    
+<Layout
+  pageTitle="Gallery of Original Art"
+  description="Browse the Burnt Dirt Art gallery featuring pastel artwork, terracotta pieces, figurative studies, and handmade sculptural and functional art."
+  canonicalPath="/gallery"
+>
+    <section class="galleryIntro" aria-labelledby="gallery-title">
+        <h1 id="gallery-title">Gallery of Original Artwork</h1>
+        <p>
+            This collection highlights pastel studies, terracotta sculpture, figurative work, and handmade art pieces from Burnt Dirt Art.
+        </p>
+    </section>
     <AllArtTilesComponent/>
 </Layout>
+
+<style>
+    .galleryIntro {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 2rem 2rem 0;
+    }
+
+    .galleryIntro h1 {
+        margin-bottom: 0.75rem;
+    }
+
+    .galleryIntro p {
+        margin: 0;
+        line-height: 1.6;
+    }
+
+    @media (max-width: 768px) {
+        .galleryIntro {
+            padding: 1.5rem 1rem 0;
+        }
+    }
+</style>
