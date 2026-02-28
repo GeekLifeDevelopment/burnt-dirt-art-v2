@@ -1,16 +1,15 @@
 ---
-import Welcome from '../components/Welcome.astro';
 import Layout from '../layouts/Layout.astro';
-import kidsImage from '../assets/kids.jpg';
-import artImage from '../assets/IMG_4337.jpeg'
 import '../styles/index.styles.css';
 import ArtTileComponent from '../components/artTiles/ArtTileComponent.astro';
-
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
 ---
 
-<Layout>
+
+<Layout
+	pageTitle="Original Art, Terracotta Sculpture & Pastel Work"
+	description="Explore original artwork by Rebecca C. Sorenson, including terracotta sculpture, pastel drawings, figurative studies, handmade cookie presses, and artisan garden stakes."
+	canonicalPath="/"
+>
 	<ArtTileComponent/>
 	<!-- <section id="welcome-section">
 		<div id="text-box">
@@ -37,3 +36,13 @@ import ArtTileComponent from '../components/artTiles/ArtTileComponent.astro';
 		</div>
 	</section> -->
 </Layout>
+
+<style>
+	:global(.ArtTileContainer) {
+		margin: -200px auto 0 auto;
+	}
+
+	:global(.artGrid) {
+		margin-top: 0;
+	}
+</style>
