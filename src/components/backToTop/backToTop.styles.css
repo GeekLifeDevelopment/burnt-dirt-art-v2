@@ -1,0 +1,46 @@
+.backToTopButton {
+    position: fixed;
+    right: 1rem;
+    bottom: 1rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    border: 1px solid currentColor;
+    background-color: transparent;
+    color: inherit;
+    font: inherit;
+    font-weight: bolder;
+    padding: 0.6rem 0.9rem;
+    cursor: pointer;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(8px);
+    pointer-events: none;
+    transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s ease;
+    z-index: 1000;
+}
+
+.backToTopButton.is-visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+
+.backToTopButton:hover {
+    transform: translateY(-2px);
+}
+
+.backToTopButton:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+    text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+    .backToTopButton {
+        right: 0.75rem;
+        bottom: 0.75rem;
+        padding: 0.7rem 0.85rem;
+    }
+}

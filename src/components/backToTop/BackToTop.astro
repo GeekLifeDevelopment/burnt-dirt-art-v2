@@ -1,0 +1,51 @@
+---
+import './backToTop.styles.css';
+---
+
+<button
+  id="backToTopButton"
+  class="backToTopButton"
+  type="button"
+  aria-label="Back to top"
+>
+  <i class="fas fa-arrow-up" aria-hidden="true"></i>
+  <span>Back to Top</span>
+</button>
+
+<script>
+  const backToTopButton = document.getElementById('backToTopButton');
+  const navElement = document.querySelector('nav.navContainer');
+
+  const showButton = () => {
+    backToTopButton?.classList.add('is-visible');
+  };
+
+  const hideButton = () => {
+    backToTopButton?.classList.remove('is-visible');
+  };
+
+  if (backToTopButton && navElement) {
+    const navObserver = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          hideButton();
+          return;
+        }
+
+        showButton();
+      },
+      {
+        threshold: 0,
+      }
+    );
+
+    navObserver.observe(navElement);
+
+    backToTopButton.addEventListener('click', () => {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth',
+      });
+    });
+  }
+</script>

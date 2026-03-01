@@ -3,6 +3,7 @@ import Navigation from "../components/navigation/Navigation.astro";
 import '../styles/global.styles.css';
 import Footer from '../components/footer/Footer.astro';
 import SEO from '../components/SEO.astro';
+import BackToTop from '../components/backToTop/BackToTop.astro';
 
 interface Props {
   pageTitle?: string;
@@ -63,6 +64,7 @@ const {
       <main class="content">
         <slot />
       </main>
+      <BackToTop />
       <Footer />
     </div>
   </body>
