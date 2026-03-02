@@ -1,12 +1,14 @@
 .backToTopButton {
     position: fixed;
     right: 1rem;
-    bottom: 1rem;
+    --back-to-top-base-bottom: 1rem;
+    --back-to-top-footer-offset: 0px;
+    bottom: calc(var(--back-to-top-base-bottom) + var(--back-to-top-footer-offset));
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
     border: 1px solid currentColor;
-    background-color: transparent;
+    background-color: rgb(255 255 255 / 0.72);
     color: inherit;
     font: inherit;
     font-weight: bolder;
@@ -40,7 +42,7 @@
 @media (max-width: 768px) {
     .backToTopButton {
         right: 0.75rem;
-        bottom: 0.75rem;
+        --back-to-top-base-bottom: 0.75rem;
         padding: 0.7rem 0.85rem;
     }
 }
