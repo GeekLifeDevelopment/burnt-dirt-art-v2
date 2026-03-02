@@ -7,17 +7,20 @@
     margin: 2rem auto 0 auto;
     padding: 2rem;
     min-height: auto;
+    box-sizing: border-box;
+    width: 100%;
 }
 
 .filterContainer {
     display: flex;
     align-items: center;
     gap: 1rem;
-    margin: 0 0 1.5rem;
+    margin: 1.5rem 0;
     padding: 1rem;
     width: 100%;
     background-color: #f5f5f5;
     border-radius: 8px;
+    box-sizing: border-box;
 }
 
 .filterContainer label {
@@ -31,6 +34,8 @@
     font-size: 1rem;
     background-color: white;
     cursor: pointer;
+    max-width: 100%;
+    min-width: 0;
 }
 
 .filterContainer select:focus {
@@ -220,8 +225,18 @@
 /* Tablet */
 @media (max-width: 768px) {
     .filterContainer {
-        width: 100%;
         flex-wrap: wrap;
+        align-items: stretch;
+        gap: 0.5rem;
+    }
+
+    .filterContainer label {
+        width: 100%;
+    }
+
+    .filterContainer select {
+        width: 100%;
+        font-size: 16px;
     }
 
     .artGrid {
