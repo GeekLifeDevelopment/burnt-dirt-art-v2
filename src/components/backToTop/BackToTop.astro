@@ -15,6 +15,7 @@ import './backToTop.styles.css';
 <script>
   const backToTopButton = document.getElementById('backToTopButton');
   const navElement = document.querySelector('nav.navContainer');
+  const footerElement = document.querySelector('.footerContainer');
 
   const showButton = () => {
     backToTopButton?.classList.add('is-visible');
@@ -22,6 +23,22 @@ import './backToTop.styles.css';
 
   const hideButton = () => {
     backToTopButton?.classList.remove('is-visible');
+  };
+
+  const updateButtonOffsetFromFooter = () => {
+    if (!backToTopButton || !footerElement) {
+      return;
+    }
+
+    const footerRect = footerElement.getBoundingClientRect();
+    const viewportHeight = window.innerHeight;
+    const footerVisibleHeight = Math.max(0, viewportHeight - footerRect.top);
+
+    backToTopButton.style.setProperty('--back-to-top-footer-offset', `${footerVisibleHeight}px`);
+  };
+
+  const requestOffsetUpdate = () => {
+    window.requestAnimationFrame(updateButtonOffsetFromFooter);
   };
 
   if (backToTopButton && navElement) {
@@ -40,6 +57,10 @@ import './backToTop.styles.css';
     );
 
     navObserver.observe(navElement);
+
+    updateButtonOffsetFromFooter();
+    window.addEventListener('scroll', requestOffsetUpdate, { passive: true });
+    window.addEventListener('resize', requestOffsetUpdate);
 
     backToTopButton.addEventListener('click', () => {
       window.scrollTo({
