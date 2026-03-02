@@ -235,6 +235,8 @@ const pageSchema = itemListElements.length
         max-width: 1200px;
         margin: 0 auto;
         padding: 2rem;
+        box-sizing: border-box;
+        width: 100%;
     }
 
     .filterContainer {
@@ -245,6 +247,7 @@ const pageSchema = itemListElements.length
         padding: 1rem;
         background-color: #f5f5f5;
         border-radius: 8px;
+        box-sizing: border-box;
     }
 
     .filterContainer label {
@@ -258,6 +261,8 @@ const pageSchema = itemListElements.length
         font-size: 1rem;
         background-color: white;
         cursor: pointer;
+        max-width: 100%;
+        min-width: 0;
     }
 
     .filterContainer select:focus {
@@ -322,5 +327,31 @@ const pageSchema = itemListElements.length
 
     .ebayLink {
         margin-right: 0.5rem;
+    }
+
+    @media (max-width: 768px) {
+        .shopContainer {
+            padding: 1rem;
+        }
+
+        .filterContainer {
+            flex-wrap: wrap;
+            align-items: stretch;
+            gap: 0.5rem;
+        }
+
+        .filterContainer label {
+            width: 100%;
+        }
+
+        .filterContainer select {
+            width: 100%;
+            font-size: 16px;
+        }
+
+        .shopGrid {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
     }
 </style>

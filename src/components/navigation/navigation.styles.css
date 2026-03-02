@@ -2,6 +2,8 @@
     background-color: rgba(182, 84, 48, 0.909);
     padding: 1rem;
     height: 500px;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .navContainer--compact {
