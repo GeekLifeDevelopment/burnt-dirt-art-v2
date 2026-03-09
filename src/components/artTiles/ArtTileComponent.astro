@@ -11,6 +11,7 @@ type HomeArtPiece = {
   imageHeight?: number;
   title: string;
   description: string;
+  price?: string;
   storeUrl?: string;
 };
 
@@ -40,6 +41,13 @@ function toText(value: any): string {
   if (!value) return '';
   if (typeof value === 'string') return value.trim();
   return extractText(value);
+}
+
+function toPrice(value: any): string | undefined {
+  if (value === undefined || value === null) return undefined;
+  const normalized = String(value).trim();
+  if (!normalized) return undefined;
+  return normalized.startsWith('$') ? normalized : `$${normalized}`;
 }
 
 function normalizeToList(value: any): string[] {
@@ -125,6 +133,7 @@ if (!space || !accessToken) {
           imageHeight: file?.details?.image?.height,
           title: item.fields.title || item.fields.inventoryCode || 'Untitled Artwork',
           description: toText(item.fields.description) || '',
+          price: toPrice(item.fields.price),
           storeUrl
         } satisfies HomeArtPiece;
       })
@@ -144,6 +153,7 @@ if (!space || !accessToken) {
           data-index={index}
           data-title={piece.title}
           data-description={piece.description}
+          data-price={piece.price || ''}
           data-store-url={piece.storeUrl || ''}
         >
           <img
@@ -156,6 +166,7 @@ if (!space || !accessToken) {
             decoding="async"
           />
           <h3 class="artTitle">{piece.title}</h3>
+          {piece.price && <p class="artPrice">{piece.price}</p>}
         </div>
       ))
     }
@@ -168,6 +179,7 @@ if (!space || !accessToken) {
     <button class="closeBtn" id="closeBtn">&times;</button>
     <img src="" alt="" class="modalImage" id="modalImage" />
     <h2 class="modalTitle" id="modalTitle"></h2>
+    <p class="modalPrice" id="modalPrice"></p>
     <div class="modalActions" id="modalActions"></div>
   </div>
 </div>
@@ -176,6 +188,7 @@ if (!space || !accessToken) {
   const modal = document.getElementById("artModal");
   const modalImage = document.getElementById("modalImage");
   const modalTitle = document.getElementById("modalTitle");
+  const modalPrice = document.getElementById("modalPrice");
   const modalActions = document.getElementById("modalActions");
   const closeBtn = document.getElementById("closeBtn");
   const artCards = document.querySelectorAll(".artCard");
@@ -184,6 +197,7 @@ if (!space || !accessToken) {
     card.addEventListener("click", () => {
       const imgElement = card.querySelector(".artImage") as HTMLImageElement;
       const title = card.getAttribute("data-title") || "";
+      const price = card.getAttribute("data-price") || "";
       const storeUrl = card.getAttribute("data-store-url") || "";
 
       if (imgElement && modalImage) {
@@ -191,6 +205,10 @@ if (!space || !accessToken) {
         (modalImage as HTMLImageElement).alt = title;
       }
       if (modalTitle) modalTitle.textContent = title;
+      if (modalPrice) {
+        modalPrice.textContent = price;
+        (modalPrice as HTMLElement).style.display = price ? "block" : "none";
+      }
 
       if (modalActions) {
         modalActions.innerHTML = "";

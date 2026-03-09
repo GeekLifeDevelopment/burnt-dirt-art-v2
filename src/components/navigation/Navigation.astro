@@ -9,16 +9,37 @@ const isHomePage = pathname === '/' || pathname === '';
     <div class="navContent">
         <div class="navHeader">
             <a href="/" class="brandMark" aria-label="Burnt Dirt Art home">Burnt Dirt Art</a>
-            
-            <button class="hamburger" id="hamburger">
-                <i class="fas fa-bars"></i>
-            </button>
+
+            <div class="navHeaderActions">
+                <a
+                    href="https://www.ebay.com/sch/i.html?_ssn=burnt-dirt-art"
+                    class="buyNowHeaderButton"
+                    target="_blank"
+                    rel="noopener noreferrer sponsored"
+                >
+                    <i class="fas fa-shopping-bag"></i> Buy Now
+                </a>
+
+                <button class="hamburger" id="hamburger">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
         </div>
         <ul class="navList" id="navList">
             <li><a href="/"><i class="fas fa-home"></i> Home</a></li>
             <li><a href="/about"><i class="fas fa-user"></i> About</a></li>
             <li><a href="/gallery"><i class="fas fa-images"></i> Gallery</a></li>
             <li><a href="/shop"><i class="fas fa-shopping-bag"></i> Shop</a></li>
+            <li class="buyNowItem">
+                <a
+                    href="https://www.ebay.com/sch/i.html?_ssn=burnt-dirt-art"
+                    class="buyNowButton"
+                    target="_blank"
+                    rel="noopener noreferrer sponsored"
+                >
+                    <i class="fas fa-shopping-bag"></i> Buy Now
+                </a>
+            </li>
             <li><a href="/contact"><i class="fas fa-envelope"></i> Contact</a></li>
         </ul>
     </div>

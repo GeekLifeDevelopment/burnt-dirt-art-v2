@@ -42,6 +42,13 @@
     color: #333;
 }
 
+.artPrice {
+    margin: 0;
+    color: rgb(182, 84, 48);
+    font-size: 1.1rem;
+    font-weight: 700;
+}
+
 .artDescription {
     margin: 0;
     color: #2c2c2c;
@@ -116,6 +123,13 @@
     font-size: 1.6rem;
     color: #333;
     margin: 0.5rem 0;
+}
+
+.modalPrice {
+    margin: 0;
+    color: rgb(182, 84, 48);
+    font-size: 1.25rem;
+    font-weight: 700;
 }
 
 .modalDescription {

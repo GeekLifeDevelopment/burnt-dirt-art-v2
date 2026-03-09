@@ -56,6 +56,26 @@
     color: black;
 }
 
+.navHeaderActions {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+}
+
+.buyNowHeaderButton {
+    display: none;
+    align-items: center;
+    gap: 0.4rem;
+    text-decoration: none;
+    padding: 0.4rem 0.75rem;
+    border: 2px solid rgb(36, 20, 12);
+    border-radius: 999px;
+    background-color: rgb(36, 20, 12);
+    color: rgb(225, 210, 194);
+    font-weight: 700;
+    white-space: nowrap;
+}
+
 .navList {
     list-style-type: none;
     display: flex;
@@ -77,6 +97,27 @@
     text-decoration: none;
     color: black;
     font-weight: bolder;
+}
+
+.buyNowItem {
+    display: flex;
+    align-items: center;
+}
+
+.buyNowButton {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.45rem 0.9rem;
+    border: 2px solid rgb(36, 20, 12);
+    border-radius: 999px;
+    background-color: rgb(36, 20, 12);
+    color: rgb(225, 210, 194) !important;
+    font-weight: 700;
+}
+
+.buyNowButton:hover {
+    opacity: 0.9;
 }
 
 .navText {
@@ -111,6 +152,10 @@
         display: block;
     }
 
+    .buyNowHeaderButton {
+        display: inline-flex;
+    }
+
     .navList {
         display: flex;
         flex-direction: column;
@@ -141,6 +186,11 @@
         width: 100%;
     }
 
+    .buyNowButton {
+        justify-content: center;
+        width: auto;
+    }
+
     .navList a i {
         width: 1.25rem;
         text-align: center;
@@ -162,6 +212,11 @@
 
     .navHeader {
         padding: 0;
+    }
+
+    .buyNowHeaderButton {
+        font-size: 0.9rem;
+        padding: 0.35rem 0.65rem;
     }
 
     .heading {
