@@ -39,6 +39,53 @@ function toText(value: any): string {
     return extractText(value);
 }
 
+function normalizeToList(value: any): string[] {
+    if (!value) return [];
+
+    if (Array.isArray(value)) {
+        return value
+            .map((entry) => (typeof entry === 'string' ? entry : String(entry ?? '')))
+            .map((entry) => entry.trim().toLowerCase())
+            .filter(Boolean);
+    }
+
+    if (typeof value === 'string') {
+        return value
+            .split(/[;,]/)
+            .map((entry) => entry.trim().toLowerCase())
+            .filter(Boolean);
+    }
+
+    return [String(value).trim().toLowerCase()].filter(Boolean);
+}
+
+function isChecked(value: any): boolean {
+    if (typeof value === 'boolean') return value;
+    if (typeof value === 'number') return value === 1;
+    if (typeof value === 'string') {
+        const normalized = value.trim().toLowerCase();
+        return ['true', '1', 'yes', 'y', 'checked'].includes(normalized);
+    }
+    return false;
+}
+
+function isShopSelected(item: any): boolean {
+    if (isChecked(item.fields.shop) || isChecked(item.fields.store)) {
+        return true;
+    }
+
+    const candidates = [
+        item.fields.page,
+        item.fields.pages,
+        item.fields.pageSection,
+        item.fields.pageSections,
+        item.fields.sections
+    ];
+
+    const values = candidates.flatMap((candidate) => normalizeToList(candidate));
+    return values.includes('shop') || values.includes('store');
+}
+
 function parseSaleState(item: any): { isSold: boolean; isForSale: boolean } {
     if (typeof item.fields.forSale === 'boolean') {
         return { isSold: !item.fields.forSale, isForSale: item.fields.forSale };
@@ -77,6 +124,7 @@ if (!space || !accessToken) {
             content_type: 'artProduct'
         });
         shopItems = entries.items.filter((item: any) => {
+            if (!isShopSelected(item)) return false;
             const { isSold } = parseSaleState(item);
             return !isSold;
         });
