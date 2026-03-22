@@ -219,6 +219,7 @@
     }
 
     .buyNowHeaderButton {
+        display: inline-flex;
         font-size: 0.9rem;
         padding: 0.35rem 0.65rem;
     }

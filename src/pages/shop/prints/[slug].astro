@@ -168,6 +168,20 @@ function fieldValue(item: any, keys: string[]): any {
     return undefined;
 }
 
+function getPreferredImages(item: any): any[] {
+    const printImages = fieldValue(item, ['printImages', 'PrintImages']);
+
+    if (Array.isArray(printImages) && printImages.length > 0) {
+        return printImages;
+    }
+
+    if (Array.isArray(item.fields.images) && item.fields.images.length > 0) {
+        return item.fields.images;
+    }
+
+    return [];
+}
+
 const { item } = Astro.props;
 const printTitle = toText(fieldValue(item, ['printTitle', 'PrintTitle'])) || item.fields.title || item.fields.inventoryCode;
 const printDescription = toText(fieldValue(item, ['printDescription', 'PrintDescription'])) || toText(item.fields.description);
@@ -175,8 +189,9 @@ const printPrice = fieldValue(item, ['printPrice', 'PrintPrice']) || item.fields
 const printLink = toText(fieldValue(item, ['printLink', 'PrintLink'])) || toText(item.fields.productLink);
 const { isSold: isOriginalSold } = parseSaleState(item);
 const hasOriginalAvailable = Boolean(item.fields.inventoryCode) && isShopSelected(item) && !isOriginalSold;
+const preferredImages = getPreferredImages(item);
 
-const imageUrls = item.fields.images?.map((image: any) => `https:${image.fields.file.url}`) || [];
+const imageUrls = preferredImages.map((image: any) => `https:${image.fields.file.url}`);
 const primaryImage = imageUrls[0];
 const siteUrl = Astro.site?.toString() || 'https://burntdirtart.com';
 
@@ -219,10 +234,10 @@ const printSchema = {
     <div class="productContainer">
         <div class="productContent">
             <div class="imageSection">
-                {item.fields.images && item.fields.images.length > 0 && (
+                {preferredImages.length > 0 && (
                     <div class="imageCarousel">
                         <div class="imageContainer">
-                            {item.fields.images.map((image: any, index: number) => (
+                            {preferredImages.map((image: any, index: number) => (
                                 <img
                                     src={`https:${image.fields.file.url}`}
                                     alt={`${printTitle} - Image ${index + 1}`}
@@ -235,9 +250,9 @@ const printSchema = {
                                 />
                             ))}
                         </div>
-                        {item.fields.images.length > 1 && (
+                        {preferredImages.length > 1 && (
                             <div class="carouselDots">
-                                {item.fields.images.map((_: any, index: number) => (
+                                {preferredImages.map((_: any, index: number) => (
                                     <button
                                         class={`dot ${index === 0 ? 'active' : ''}`}
                                         data-index={index}

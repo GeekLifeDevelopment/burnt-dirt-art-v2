@@ -70,6 +70,20 @@ function fieldValue(item: any, keys: string[]): any {
     return undefined;
 }
 
+function getPreferredImages(item: any): any[] {
+    const printImages = fieldValue(item, ['printImages', 'PrintImages']);
+
+    if (Array.isArray(printImages) && printImages.length > 0) {
+        return printImages;
+    }
+
+    if (Array.isArray(item.fields.images) && item.fields.images.length > 0) {
+        return item.fields.images;
+    }
+
+    return [];
+}
+
 if (!space || !accessToken) {
     console.warn(
         'Missing Contentful credentials. Prints page will render without product data. ' +
@@ -99,8 +113,10 @@ const itemListElements = printItems
         const printLink = toText(fieldValue(item, ['printLink', 'PrintLink'])) || toText(item.fields.productLink);
         if (!printLink) return null;
 
-        const imageUrl = item.fields.images?.[0]?.fields?.file?.url
-            ? `https:${item.fields.images[0].fields.file.url}`
+        const preferredImages = getPreferredImages(item);
+
+        const imageUrl = preferredImages?.[0]?.fields?.file?.url
+            ? `https:${preferredImages[0].fields.file.url}`
             : undefined;
 
         const printTitle = toText(fieldValue(item, ['printTitle', 'PrintTitle'])) || item.fields.title || item.fields.inventoryCode || 'Print Listing';
@@ -152,15 +168,16 @@ const pageSchema = itemListElements.length
                     const printTitle = toText(fieldValue(item, ['printTitle', 'PrintTitle'])) || item.fields.title || item.fields.inventoryCode;
                     const printPrice = fieldValue(item, ['printPrice', 'PrintPrice']) || item.fields.price;
                     const printLink = toText(fieldValue(item, ['printLink', 'PrintLink'])) || toText(item.fields.productLink);
+                    const preferredImages = getPreferredImages(item);
 
                     return (
                         <article class="printItem">
-                            {item.fields.images && item.fields.images.length > 0 && (
+                            {preferredImages.length > 0 && (
                                 <img
-                                    src={`https:${item.fields.images[0].fields.file.url}`}
+                                    src={`https:${preferredImages[0].fields.file.url}`}
                                     alt={printTitle || 'Burnt Dirt Art print'}
-                                    width={item.fields.images[0].fields.file.details?.image?.width}
-                                    height={item.fields.images[0].fields.file.details?.image?.height}
+                                    width={preferredImages[0].fields.file.details?.image?.width}
+                                    height={preferredImages[0].fields.file.details?.image?.height}
                                     loading="lazy"
                                     decoding="async"
                                 />
