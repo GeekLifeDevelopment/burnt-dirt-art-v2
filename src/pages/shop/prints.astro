@@ -1,0 +1,302 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import * as contentful from 'contentful';
+import { artistName } from '../../config/seo';
+
+const space = import.meta.env.CONTENTFUL_SPACE_ID || process.env.CONTENTFUL_SPACE_ID;
+const accessToken = import.meta.env.CONTENTFUL_ACCESS_TOKEN || process.env.CONTENTFUL_ACCESS_TOKEN;
+
+let printItems: any[] = [];
+
+function extractText(richText: any): string {
+    if (!richText || !richText.content) return '';
+
+    let text = '';
+    const traverse = (node: any) => {
+        if (node.nodeType === 'text') {
+            text += node.value;
+        }
+        if (node.content && Array.isArray(node.content)) {
+            node.content.forEach((child: any) => {
+                traverse(child);
+                if (['paragraph', 'heading-1', 'heading-2', 'heading-3'].includes(child.nodeType)) {
+                    text += '\n';
+                }
+            });
+        }
+    };
+
+    traverse(richText);
+    return text.trim();
+}
+
+function toText(value: any): string {
+    if (!value) return '';
+    if (typeof value === 'string') return value.trim();
+    return extractText(value);
+}
+
+function normalizeToList(value: any): string[] {
+    if (!value) return [];
+
+    if (Array.isArray(value)) {
+        return value
+            .map((entry) => (typeof entry === 'string' ? entry : String(entry ?? '')))
+            .map((entry) => entry.trim().toLowerCase())
+            .filter(Boolean);
+    }
+
+    if (typeof value === 'string') {
+        return value
+            .split(/[;,]/)
+            .map((entry) => entry.trim().toLowerCase())
+            .filter(Boolean);
+    }
+
+    return [String(value).trim().toLowerCase()].filter(Boolean);
+}
+
+function hasPrintAvailableCategory(item: any): boolean {
+    const categories = normalizeToList(item.fields.category);
+    return categories.includes('print available');
+}
+
+function fieldValue(item: any, keys: string[]): any {
+    for (const key of keys) {
+        if (item.fields[key] !== undefined && item.fields[key] !== null) {
+            return item.fields[key];
+        }
+    }
+    return undefined;
+}
+
+if (!space || !accessToken) {
+    console.warn(
+        'Missing Contentful credentials. Prints page will render without product data. ' +
+        'Set CONTENTFUL_SPACE_ID and CONTENTFUL_ACCESS_TOKEN in Netlify environment variables.'
+    );
+} else {
+    const client = contentful.createClient({
+        space,
+        accessToken
+    });
+
+    try {
+        const entries = await client.getEntries({
+            content_type: 'artProduct'
+        });
+
+        printItems = entries.items.filter((item: any) => hasPrintAvailableCategory(item));
+    } catch (error) {
+        console.error('Error fetching print data from Contentful:', error);
+    }
+}
+
+const siteUrl = Astro.site?.toString() || 'https://burntdirtart.com';
+
+const itemListElements = printItems
+    .map((item, index) => {
+        const printLink = toText(fieldValue(item, ['printLink', 'PrintLink'])) || toText(item.fields.productLink);
+        if (!printLink) return null;
+
+        const imageUrl = item.fields.images?.[0]?.fields?.file?.url
+            ? `https:${item.fields.images[0].fields.file.url}`
+            : undefined;
+
+        const printTitle = toText(fieldValue(item, ['printTitle', 'PrintTitle'])) || item.fields.title || item.fields.inventoryCode || 'Print Listing';
+
+        return {
+            '@type': 'ListItem',
+            position: index + 1,
+            item: {
+                '@type': 'Product',
+                name: printTitle,
+                url: printLink,
+                image: imageUrl
+            }
+        };
+    })
+    .filter(Boolean);
+
+const pageSchema = itemListElements.length
+    ? {
+        '@context': 'https://schema.org',
+        '@type': 'ItemList',
+        name: 'Burnt Dirt Art Prints',
+        url: new URL('/shop/prints', siteUrl).toString(),
+        numberOfItems: itemListElements.length,
+        itemListElement: itemListElements,
+        author: {
+            '@type': 'Person',
+            name: artistName
+        }
+    }
+    : undefined;
+---
+
+<Layout
+    pageTitle="Shop Prints"
+    description="Browse print editions from Burnt Dirt Art and view available listings."
+    canonicalPath="/shop/prints"
+    pageSchema={pageSchema}
+>
+    <div class="printsContainer">
+        <h1>Shop Prints</h1>
+        <p class="printsIntro">
+            Browse prints currently available from Burnt Dirt Art. Select any listing for full details and purchase options.
+        </p>
+
+        {printItems.length > 0 ? (
+            <div class="printsGrid">
+                {printItems.map((item: any) => {
+                    const printTitle = toText(fieldValue(item, ['printTitle', 'PrintTitle'])) || item.fields.title || item.fields.inventoryCode;
+                    const printPrice = fieldValue(item, ['printPrice', 'PrintPrice']) || item.fields.price;
+                    const printLink = toText(fieldValue(item, ['printLink', 'PrintLink'])) || toText(item.fields.productLink);
+
+                    return (
+                        <article class="printItem">
+                            {item.fields.images && item.fields.images.length > 0 && (
+                                <img
+                                    src={`https:${item.fields.images[0].fields.file.url}`}
+                                    alt={printTitle || 'Burnt Dirt Art print'}
+                                    width={item.fields.images[0].fields.file.details?.image?.width}
+                                    height={item.fields.images[0].fields.file.details?.image?.height}
+                                    loading="lazy"
+                                    decoding="async"
+                                />
+                            )}
+
+                            <h2>{printTitle || 'Untitled Print'}</h2>
+
+                            {printPrice && <p class="price">${printPrice}</p>}
+
+                            {printLink ? (
+                                <a
+                                    href={printLink}
+                                    class="detailsLink"
+                                    target="_blank"
+                                    rel="noopener noreferrer sponsored"
+                                >
+                                    View Print Listing
+                                </a>
+                            ) : (
+                                <span class="noLink">Listing unavailable</span>
+                            )}
+
+                            {item.fields.inventoryCode ? (
+                                <a href={`/shop/prints/${item.fields.inventoryCode}`} class="detailsLink detailsLinkSecondary">
+                                    Click for more details
+                                </a>
+                            ) : (
+                                <span class="noLink">Details unavailable</span>
+                            )}
+                        </article>
+                    );
+                })}
+            </div>
+        ) : (
+            <p>
+                No prints are available right now. Please check back soon or visit{' '}
+                <a href="https://www.ebay.com/sch/i.html?_ssn=burnt-dirt-art" target="_blank" rel="noopener noreferrer sponsored">
+                    Burnt Dirt Art on eBay
+                </a>
+                .
+            </p>
+        )}
+    </div>
+</Layout>
+
+<style>
+    .printsContainer {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+        box-sizing: border-box;
+        width: 100%;
+    }
+
+    .printsIntro {
+        max-width: 850px;
+        line-height: 1.6;
+        margin-top: 0.5rem;
+    }
+
+    .printsGrid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 2rem;
+        margin-top: 2rem;
+    }
+
+    .printItem {
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 1rem;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .printItem img {
+        width: 100%;
+        height: 300px;
+        object-fit: contain;
+        border-radius: 4px;
+    }
+
+    .printItem h2 {
+        margin: 0.25rem 0;
+        font-size: 1.25rem;
+    }
+
+    .price {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: rgb(182, 84, 48);
+        margin: 0;
+    }
+
+    .detailsLink {
+        display: inline-block;
+        margin-top: auto;
+        padding: 0.5rem 1rem;
+        background-color: rgb(182, 84, 48);
+        color: white;
+        text-decoration: none;
+        border-radius: 4px;
+        transition: background-color 0.3s;
+        font-size: 0.9rem;
+    }
+
+    .detailsLink:hover {
+        background-color: rgb(150, 60, 30);
+    }
+
+    .detailsLinkSecondary {
+        background-color: #e0e0e0;
+        color: #333;
+        margin-top: 0.25rem;
+    }
+
+    .detailsLinkSecondary:hover {
+        background-color: #d0d0d0;
+    }
+
+    .noLink {
+        color: #666;
+        font-size: 0.9rem;
+        margin-top: auto;
+    }
+
+    @media (max-width: 768px) {
+        .printsContainer {
+            padding: 1rem;
+        }
+
+        .printsGrid {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+    }
+</style>

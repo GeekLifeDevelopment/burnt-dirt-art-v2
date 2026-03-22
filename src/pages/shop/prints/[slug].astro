@@ -1,7 +1,7 @@
 ---
-import Layout from '../../layouts/Layout.astro';
+import Layout from '../../../layouts/Layout.astro';
 import * as contentful from 'contentful';
-import { artistName } from '../../config/seo';
+import { artistName } from '../../../config/seo';
 
 export async function getStaticPaths() {
     const normalizeToList = (value: any): string[] => {
@@ -24,121 +24,70 @@ export async function getStaticPaths() {
         return [String(value).trim().toLowerCase()].filter(Boolean);
     };
 
-    const isChecked = (value: any): boolean => {
-        if (typeof value === 'boolean') return value;
-        if (typeof value === 'number') return value === 1;
-        if (typeof value === 'string') {
-            const normalized = value.trim().toLowerCase();
-            return ['true', '1', 'yes', 'y', 'checked'].includes(normalized);
-        }
-        return false;
+    const hasPrintAvailableCategory = (item: any): boolean => {
+        const categories = normalizeToList(item.fields.category);
+        return categories.includes('print available');
     };
 
-    const isShopSelected = (item: any): boolean => {
-        if (isChecked(item.fields.shop) || isChecked(item.fields.store)) {
-            return true;
-        }
+    const space = import.meta.env.CONTENTFUL_SPACE_ID || process.env.CONTENTFUL_SPACE_ID;
+    const accessToken = import.meta.env.CONTENTFUL_ACCESS_TOKEN || process.env.CONTENTFUL_ACCESS_TOKEN;
 
-        const candidates = [
-            item.fields.page,
-            item.fields.pages,
-            item.fields.pageSection,
-            item.fields.pageSections,
-            item.fields.sections
-        ];
-
-        const values = candidates.flatMap((candidate) => normalizeToList(candidate));
-        return values.includes('shop') || values.includes('store');
-    };
-
-    const parseSaleState = (item: any): { isSold: boolean; isForSale: boolean } => {
-        if (typeof item.fields.forSale === 'boolean') {
-            return { isSold: !item.fields.forSale, isForSale: item.fields.forSale };
-        }
-
-        if (item.fields.sold === true) {
-            return { isSold: true, isForSale: false };
-        }
-
-        const saleValue = String(item.fields.sale ?? item.fields.status ?? '').trim().toLowerCase();
-
-        if (saleValue.includes('sold')) {
-            return { isSold: true, isForSale: false };
-        }
-
-        if (item.fields.forSale === true || item.fields.sale === true || saleValue.includes('for sale') || saleValue === 'sale') {
-            return { isSold: false, isForSale: true };
-        }
-
-        return { isSold: false, isForSale: false };
-    };
-
-  // Get environment variables with fallbacks for Netlify builds
-  const space = import.meta.env.CONTENTFUL_SPACE_ID || process.env.CONTENTFUL_SPACE_ID;
-  const accessToken = import.meta.env.CONTENTFUL_ACCESS_TOKEN || process.env.CONTENTFUL_ACCESS_TOKEN;
-  
-  // Check if credentials are available
-  if (!space || !accessToken) {
+    if (!space || !accessToken) {
         console.warn(
-            'Missing Contentful credentials. Returning no static shop detail pages. ' +
+            'Missing Contentful credentials. Returning no static print detail pages. ' +
             'Set CONTENTFUL_SPACE_ID and CONTENTFUL_ACCESS_TOKEN in Netlify environment variables.'
         );
         return [];
-  }
-  
-  const client = contentful.createClient({
-    space,
-    accessToken
-  });
+    }
 
-  try {
-    const entries = await client.getEntries({ 
-      content_type: 'artProduct'
+    const client = contentful.createClient({
+        space,
+        accessToken
     });
 
-    console.log(`Building ${entries.items.length} product pages`);
-    
-    return entries.items
-            .filter((item: any) => {
-                if (!item.fields.inventoryCode) return false;
-                if (!isShopSelected(item)) return false;
-                const { isSold } = parseSaleState(item);
-                return !isSold;
-            })
-      .map((item: any) => {
-        console.log(`Creating page for: ${item.fields.inventoryCode} - ${item.fields.title || 'Untitled'}`);
-        return {
-          params: { slug: item.fields.inventoryCode },
-          props: { item }
-        };
-      });
-  } catch (error) {
-    console.error('Error fetching products for static paths:', error);
-    return [];
-  }
+    try {
+        const entries = await client.getEntries({
+            content_type: 'artProduct'
+        });
+
+        return entries.items
+            .filter((item: any) => item.fields.inventoryCode && hasPrintAvailableCategory(item))
+            .map((item: any) => ({
+                params: { slug: item.fields.inventoryCode },
+                props: { item }
+            }));
+    } catch (error) {
+        console.error('Error fetching print products for static paths:', error);
+        return [];
+    }
 }
 
-// Helper function to extract plain text from Contentful rich text
 function extractText(richText: any): string {
-  if (!richText || !richText.content) return '';
-  
-  let text = '';
-  const traverse = (node: any) => {
-    if (node.nodeType === 'text') {
-      text += node.value;
-    }
-    if (node.content && Array.isArray(node.content)) {
-      node.content.forEach((child: any) => {
-        traverse(child);
-        // Add line breaks after paragraphs and headings
-        if (['paragraph', 'heading-1', 'heading-2', 'heading-3'].includes(child.nodeType)) {
-          text += '\n';
+    if (!richText || !richText.content) return '';
+
+    let text = '';
+    const traverse = (node: any) => {
+        if (node.nodeType === 'text') {
+            text += node.value;
         }
-      });
-    }
-  };
-  traverse(richText);
-  return text.trim();
+        if (node.content && Array.isArray(node.content)) {
+            node.content.forEach((child: any) => {
+                traverse(child);
+                if (['paragraph', 'heading-1', 'heading-2', 'heading-3'].includes(child.nodeType)) {
+                    text += '\n';
+                }
+            });
+        }
+    };
+
+    traverse(richText);
+    return text.trim();
+}
+
+function toText(value: any): string {
+    if (!value) return '';
+    if (typeof value === 'string') return value.trim();
+    return extractText(value);
 }
 
 function normalizeToList(value: any): string[] {
@@ -161,43 +110,111 @@ function normalizeToList(value: any): string[] {
     return [String(value).trim().toLowerCase()].filter(Boolean);
 }
 
-const { item } = Astro.props;
-const description = typeof item.fields.description === 'string' 
-  ? item.fields.description 
-  : extractText(item.fields.description);
+function isChecked(value: any): boolean {
+    if (typeof value === 'boolean') return value;
+    if (typeof value === 'number') return value === 1;
+    if (typeof value === 'string') {
+        const normalized = value.trim().toLowerCase();
+        return ['true', '1', 'yes', 'y', 'checked'].includes(normalized);
+    }
+    return false;
+}
 
-// Extract URL from productLink if it's an object
-const productLink = typeof item.fields.productLink === 'string'
-  ? item.fields.productLink
-  : extractText(item.fields.productLink);
-const hasPrintAvailable = normalizeToList(item.fields.category).includes('print available') && Boolean(item.fields.inventoryCode);
+function isShopSelected(item: any): boolean {
+    if (isChecked(item.fields.shop) || isChecked(item.fields.store)) {
+        return true;
+    }
+
+    const candidates = [
+        item.fields.page,
+        item.fields.pages,
+        item.fields.pageSection,
+        item.fields.pageSections,
+        item.fields.sections
+    ];
+
+    const values = candidates.flatMap((candidate) => normalizeToList(candidate));
+    return values.includes('shop') || values.includes('store');
+}
+
+function parseSaleState(item: any): { isSold: boolean; isForSale: boolean } {
+    if (typeof item.fields.forSale === 'boolean') {
+        return { isSold: !item.fields.forSale, isForSale: item.fields.forSale };
+    }
+
+    if (item.fields.sold === true) {
+        return { isSold: true, isForSale: false };
+    }
+
+    const saleValue = String(item.fields.sale ?? item.fields.status ?? '').trim().toLowerCase();
+
+    if (saleValue.includes('sold')) {
+        return { isSold: true, isForSale: false };
+    }
+
+    if (item.fields.forSale === true || item.fields.sale === true || saleValue.includes('for sale') || saleValue === 'sale') {
+        return { isSold: false, isForSale: true };
+    }
+
+    return { isSold: false, isForSale: false };
+}
+
+function fieldValue(item: any, keys: string[]): any {
+    for (const key of keys) {
+        if (item.fields[key] !== undefined && item.fields[key] !== null) {
+            return item.fields[key];
+        }
+    }
+    return undefined;
+}
+
+const { item } = Astro.props;
+const printTitle = toText(fieldValue(item, ['printTitle', 'PrintTitle'])) || item.fields.title || item.fields.inventoryCode;
+const printDescription = toText(fieldValue(item, ['printDescription', 'PrintDescription'])) || toText(item.fields.description);
+const printPrice = fieldValue(item, ['printPrice', 'PrintPrice']) || item.fields.price;
+const printLink = toText(fieldValue(item, ['printLink', 'PrintLink'])) || toText(item.fields.productLink);
+const { isSold: isOriginalSold } = parseSaleState(item);
+const hasOriginalAvailable = Boolean(item.fields.inventoryCode) && isShopSelected(item) && !isOriginalSold;
 
 const imageUrls = item.fields.images?.map((image: any) => `https:${image.fields.file.url}`) || [];
 const primaryImage = imageUrls[0];
 const siteUrl = Astro.site?.toString() || 'https://burntdirtart.com';
 
-const artworkSchema = {
+const printSchema = {
     '@context': 'https://schema.org',
-    '@type': 'VisualArtwork',
-    name: item.fields.title || item.fields.inventoryCode,
+    '@type': 'Product',
+    name: printTitle,
     image: imageUrls,
-    description: description || item.fields.title || item.fields.inventoryCode,
+    description: printDescription || printTitle,
+    brand: {
+        '@type': 'Brand',
+        name: 'Burnt Dirt Art'
+    },
+    category: 'Art Print',
+    offers: printPrice
+        ? {
+            '@type': 'Offer',
+            price: String(printPrice),
+            priceCurrency: 'USD',
+            availability: 'https://schema.org/InStock',
+            url: printLink || new URL(`/shop/prints/${item.fields.inventoryCode}`, siteUrl).toString()
+        }
+        : undefined,
     creator: {
         '@type': 'Person',
         name: artistName
     },
-    artMedium: item.fields.category || undefined,
-    url: new URL(`/shop/${item.fields.inventoryCode}`, siteUrl).toString()
+    url: new URL(`/shop/prints/${item.fields.inventoryCode}`, siteUrl).toString()
 };
 ---
 
 <Layout
-        pageTitle={item.fields.title || item.fields.inventoryCode}
-        description={description || `View details for ${item.fields.title || item.fields.inventoryCode} from Burnt Dirt Art.`}
-        canonicalPath={`/shop/${item.fields.inventoryCode}`}
-        image={primaryImage}
-        ogType="product"
-        pageSchema={artworkSchema}
+    pageTitle={printTitle}
+    description={printDescription || `View print details for ${printTitle} from Burnt Dirt Art.`}
+    canonicalPath={`/shop/prints/${item.fields.inventoryCode}`}
+    image={primaryImage}
+    ogType="product"
+    pageSchema={printSchema}
 >
     <div class="productContainer">
         <div class="productContent">
@@ -206,9 +223,9 @@ const artworkSchema = {
                     <div class="imageCarousel">
                         <div class="imageContainer">
                             {item.fields.images.map((image: any, index: number) => (
-                                <img 
+                                <img
                                     src={`https:${image.fields.file.url}`}
-                                    alt={`${item.fields.title || item.fields.inventoryCode} - Image ${index + 1}`}
+                                    alt={`${printTitle} - Image ${index + 1}`}
                                     class={`productImage ${index === 0 ? 'active' : ''}`}
                                     data-index={index}
                                     width={image.fields.file.details?.image?.width}
@@ -221,7 +238,7 @@ const artworkSchema = {
                         {item.fields.images.length > 1 && (
                             <div class="carouselDots">
                                 {item.fields.images.map((_: any, index: number) => (
-                                    <button 
+                                    <button
                                         class={`dot ${index === 0 ? 'active' : ''}`}
                                         data-index={index}
                                         aria-label={`View image ${index + 1}`}
@@ -232,45 +249,39 @@ const artworkSchema = {
                     </div>
                 )}
             </div>
-            
+
             <div class="detailsSection">
-                <h1>{item.fields.title || item.fields.inventoryCode}</h1>
-                
-                {item.fields.price && (
-                    <p class="price">${item.fields.price}</p>
+                <h1>{printTitle}</h1>
+
+                {printPrice && (
+                    <p class="price">${printPrice}</p>
                 )}
-                
+
                 {item.fields.dimensions && (
                     <div class="detailItem">
                         <strong>Dimensions:</strong> {item.fields.dimensions}
                     </div>
                 )}
-                
-                {item.fields.dateCompleted && (
-                    <div class="detailItem">
-                        <strong>Completed:</strong> {new Date(item.fields.dateCompleted).toLocaleDateString()}
-                    </div>
-                )}
-                
-                {description && (
+
+                {printDescription && (
                     <div class="description">
                         <h3>Description</h3>
-                        <p style="white-space: pre-wrap;">{description}</p>
+                        <p style="white-space: pre-wrap;">{printDescription}</p>
                     </div>
                 )}
-                
+
                 <div class="actions">
-                    {productLink && (
-                        <a href={productLink} target="_blank" rel="noopener noreferrer sponsored" class="ebayButton">
-                            View on eBay
+                    {printLink && (
+                        <a href={printLink} target="_blank" rel="noopener noreferrer sponsored" class="ebayButton">
+                            View Print Listing
                         </a>
                     )}
-                    {hasPrintAvailable && (
-                        <a href={`/shop/prints/${item.fields.inventoryCode}`} class="printButton">
-                            Print Available
+                    {hasOriginalAvailable && (
+                        <a href={`/shop/${item.fields.inventoryCode}`} class="originalButton">
+                            Original Art Available
                         </a>
                     )}
-                    <a href="/shop" class="backButton">Back to Shop</a>
+                    <a href="/shop/prints" class="backButton">Back to Prints</a>
                 </div>
             </div>
         </div>
@@ -391,7 +402,7 @@ const artworkSchema = {
         margin-top: 2rem;
     }
 
-    .ebayButton, .printButton, .backButton {
+    .ebayButton, .originalButton, .backButton {
         display: inline-block;
         padding: 0.75rem 1.5rem;
         text-decoration: none;
@@ -409,13 +420,13 @@ const artworkSchema = {
         background-color: rgb(150, 60, 30);
     }
 
-    .printButton {
+    .originalButton {
         background-color: rgb(225, 210, 194);
         color: rgb(82, 42, 24);
         border: 1px solid rgb(182, 84, 48);
     }
 
-    .printButton:hover {
+    .originalButton:hover {
         background-color: rgb(214, 190, 166);
     }
 
