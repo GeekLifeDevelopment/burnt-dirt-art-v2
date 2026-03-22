@@ -284,6 +284,7 @@ const artworkSchema = {
         justify-content: center;
         border-radius: 8px;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        touch-action: pan-y;
     }
 
     .productImage {
@@ -409,23 +410,71 @@ const artworkSchema = {
 
 <script>
     document.addEventListener('DOMContentLoaded', () => {
-        const dots = document.querySelectorAll('.dot');
-        const images = document.querySelectorAll('.productImage');
-        
-        if (dots.length === 0 || images.length === 0) return;
-        
+        const imageContainer = document.querySelector('.imageContainer');
+        const dots = Array.from(document.querySelectorAll<HTMLButtonElement>('.dot'));
+        const images = Array.from(document.querySelectorAll<HTMLImageElement>('.productImage'));
+
+        if (images.length === 0) return;
+
+        let activeIndex = Math.max(0, images.findIndex((img) => img.classList.contains('active')));
+
+        const setActiveIndex = (index: number) => {
+            const boundedIndex = ((index % images.length) + images.length) % images.length;
+
+            images.forEach((img, imgIndex) => {
+                img.classList.toggle('active', imgIndex === boundedIndex);
+            });
+
+            dots.forEach((dot, dotIndex) => {
+                dot.classList.toggle('active', dotIndex === boundedIndex);
+            });
+
+            activeIndex = boundedIndex;
+        };
+
         dots.forEach((dot) => {
             dot.addEventListener('click', () => {
-                const index = parseInt(dot.getAttribute('data-index') || '0');
-                
-                // Remove active class from all images and dots
-                images.forEach(img => img.classList.remove('active'));
-                dots.forEach(d => d.classList.remove('active'));
-                
-                // Add active class to selected image and dot
-                images[index].classList.add('active');
-                dot.classList.add('active');
+                const index = parseInt(dot.getAttribute('data-index') || '0', 10);
+                setActiveIndex(index);
             });
         });
+
+        if (!imageContainer || images.length < 2) return;
+
+        let startX = 0;
+        let startY = 0;
+        let isTracking = false;
+        const minSwipeDistance = 40;
+        const maxVerticalDrift = 60;
+
+        imageContainer.addEventListener('touchstart', (event: Event) => {
+            const touchEvent = event as TouchEvent;
+            if (touchEvent.touches.length !== 1) return;
+
+            const touch = touchEvent.touches[0];
+            startX = touch.clientX;
+            startY = touch.clientY;
+            isTracking = true;
+        }, { passive: true });
+
+        imageContainer.addEventListener('touchend', (event: Event) => {
+            const touchEvent = event as TouchEvent;
+            if (!isTracking || touchEvent.changedTouches.length === 0) return;
+
+            const touch = touchEvent.changedTouches[0];
+            const deltaX = touch.clientX - startX;
+            const deltaY = touch.clientY - startY;
+            isTracking = false;
+
+            if (Math.abs(deltaX) < minSwipeDistance || Math.abs(deltaY) > maxVerticalDrift) {
+                return;
+            }
+
+            if (deltaX < 0) {
+                setActiveIndex(activeIndex + 1);
+            } else {
+                setActiveIndex(activeIndex - 1);
+            }
+        }, { passive: true });
     });
 </script>
