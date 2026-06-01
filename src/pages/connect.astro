@@ -1,0 +1,224 @@
+---
+import SEO from '../components/SEO.astro';
+import '../styles/global.styles.css';
+
+const links = [
+  { label: 'Website', url: 'https://burntdirtart.com' },
+  { label: 'Instagram', url: 'https://www.instagram.com/burntdirtart/' },
+  { label: 'Facebook', url: 'https://www.facebook.com/profile.php?id=61582823711371' },
+  { label: 'YouTube', url: 'https://www.youtube.com/@BurntDirtArt' },
+  { label: 'Pinterest', url: 'https://www.pinterest.com/burntdirtart/' }
+];
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <SEO
+      pageTitle="Connect with Burnt Dirt Art"
+      description="Follow Burnt Dirt Art online, view available artwork, and connect on Instagram, Facebook, YouTube, and Pinterest."
+      canonicalPath="/connect"
+      ogType="website"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poiret+One&family=Shadows+Into+Light&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body class="connectBody">
+    <main class="connectMain" aria-labelledby="connect-heading">
+      <section class="connectCard">
+        <p class="brandName" aria-label="Burnt Dirt Art brand name">Burnt Dirt Art</p>
+        <h1 id="connect-heading">Thanks for visiting Burnt Dirt Art!</h1>
+        <p class="introText">
+          Explore available artwork, follow new creations, and connect with me online.
+        </p>
+
+        <nav aria-label="Burnt Dirt Art social and website links">
+          <ul class="connectList">
+            {
+              links.map((link) => (
+                <li>
+                  <a
+                    href={link.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={`${link.label} (opens in a new tab)`}
+                    class="connectButton"
+                  >
+                    {link.label}
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+        </nav>
+
+        <footer class="connectFooter" aria-label="Burnt Dirt Art footer">
+          <p>Handmade art inspired by life.</p>
+          <p>© Burnt Dirt Art</p>
+        </footer>
+      </section>
+    </main>
+  </body>
+</html>
+
+<style>
+  .connectBody {
+    margin: 0;
+    min-height: 100vh;
+    color: #241f1b;
+    background:
+      radial-gradient(circle at 20% 15%, rgba(255, 247, 230, 0.95) 0, rgba(255, 247, 230, 0) 38%),
+      radial-gradient(circle at 85% 85%, rgba(202, 170, 130, 0.24) 0, rgba(202, 170, 130, 0) 36%),
+      repeating-linear-gradient(
+        150deg,
+        rgba(255, 255, 255, 0.08) 0,
+        rgba(255, 255, 255, 0.08) 2px,
+        transparent 2px,
+        transparent 13px
+      ),
+      linear-gradient(165deg, #f8efdf 0%, #ddc2a0 58%, #9c7a5e 100%);
+    display: flex;
+    justify-content: center;
+    padding: 1rem;
+    box-sizing: border-box;
+  }
+
+  .connectMain {
+    width: 100%;
+    max-width: 32rem;
+    display: flex;
+    align-items: center;
+  }
+
+  .connectCard {
+    width: 100%;
+    background: rgba(254, 248, 238, 0.93);
+    border: 1px solid rgba(80, 58, 37, 0.2);
+    border-radius: 1.25rem;
+    box-shadow:
+      0 16px 36px rgba(58, 38, 19, 0.2),
+      inset 0 1px 0 rgba(255, 255, 255, 0.55);
+    backdrop-filter: blur(1.2px);
+    padding: 1.25rem;
+  }
+
+  .brandName {
+    margin: 0;
+    color: #5a3f2d;
+    font-family: 'Shadows Into Light', cursive;
+    font-size: 2.1rem;
+    line-height: 1;
+    letter-spacing: 0.03em;
+  }
+
+  h1 {
+    margin: 0.75rem 0 0;
+    color: #22160f;
+    font-family: 'Poiret One', sans-serif;
+    font-size: 1.8rem;
+    line-height: 1.22;
+  }
+
+  .introText {
+    margin: 0.9rem 0 1.15rem;
+    color: #3f3128;
+    line-height: 1.5;
+  }
+
+  .connectList {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: 0.75rem;
+  }
+
+  .connectButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-height: 3.45rem;
+    border-radius: 0.95rem;
+    border: 1px solid #7f614a;
+    background: linear-gradient(180deg, #f7ead4 0%, #ead1af 100%);
+    color: #1d1612;
+    text-decoration: none;
+    font-size: 1.08rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    box-shadow: 0 5px 10px rgba(38, 23, 11, 0.14);
+    transition: transform 140ms ease, box-shadow 140ms ease, background-color 140ms ease;
+  }
+
+  .connectButton:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 16px rgba(38, 23, 11, 0.2);
+    background: linear-gradient(180deg, #f9edd9 0%, #eccca5 100%);
+  }
+
+  .connectButton:focus-visible {
+    outline: 3px solid #1e1712;
+    outline-offset: 2px;
+    transform: translateY(-1px);
+  }
+
+  .connectFooter {
+    margin-top: 1.15rem;
+    padding-top: 0.95rem;
+    border-top: 1px solid rgba(70, 45, 27, 0.2);
+    text-align: center;
+    color: #4a392e;
+    line-height: 1.4;
+  }
+
+  .connectFooter p {
+    margin: 0.22rem 0;
+    font-size: 0.96rem;
+  }
+
+  @media (min-width: 768px) {
+    .connectBody {
+      padding: 2rem;
+    }
+
+    .connectCard {
+      padding: 1.85rem;
+    }
+
+    .brandName {
+      font-size: 2.5rem;
+    }
+
+    h1 {
+      font-size: 2.1rem;
+    }
+
+    .introText {
+      margin-bottom: 1.35rem;
+      font-size: 1.08rem;
+    }
+
+    .connectButton {
+      min-height: 3.65rem;
+      font-size: 1.13rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .connectButton {
+      transition: none;
+    }
+
+    .connectButton:hover {
+      transform: none;
+    }
+  }
+</style>
