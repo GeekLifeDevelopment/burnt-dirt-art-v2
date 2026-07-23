@@ -166,10 +166,6 @@ const description = typeof item.fields.description === 'string'
   ? item.fields.description 
   : extractText(item.fields.description);
 
-// Extract URL from productLink if it's an object
-const productLink = typeof item.fields.productLink === 'string'
-  ? item.fields.productLink
-  : extractText(item.fields.productLink);
 const hasPrintAvailable = normalizeToList(item.fields.category).includes('print available') && Boolean(item.fields.inventoryCode);
 
 const imageUrls = item.fields.images?.map((image: any) => `https:${image.fields.file.url}`) || [];
@@ -260,11 +256,6 @@ const artworkSchema = {
                 )}
                 
                 <div class="actions">
-                    {productLink && (
-                        <a href={productLink} target="_blank" rel="noopener noreferrer sponsored" class="ebayButton">
-                            View on eBay
-                        </a>
-                    )}
                     {hasPrintAvailable && (
                         <a href={`/shop/prints/${item.fields.inventoryCode}`} class="printButton">
                             Print Available
@@ -391,22 +382,13 @@ const artworkSchema = {
         margin-top: 2rem;
     }
 
-    .ebayButton, .printButton, .backButton {
+    .printButton, .backButton {
         display: inline-block;
         padding: 0.75rem 1.5rem;
         text-decoration: none;
         border-radius: 4px;
         font-weight: bold;
         transition: background-color 0.3s;
-    }
-
-    .ebayButton {
-        background-color: rgb(182, 84, 48);
-        color: white;
-    }
-
-    .ebayButton:hover {
-        background-color: rgb(150, 60, 30);
     }
 
     .printButton {
