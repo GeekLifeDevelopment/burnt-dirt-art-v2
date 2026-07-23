@@ -1,25 +1,33 @@
 .backToTopButton {
     position: fixed;
-    right: 1rem;
+    right: var(--page-gutter);
     --back-to-top-base-bottom: 1rem;
     --back-to-top-footer-offset: 0px;
     bottom: calc(var(--back-to-top-base-bottom) + var(--back-to-top-footer-offset));
     display: inline-flex;
     align-items: center;
-    gap: 0.5rem;
-    border: 1px solid currentColor;
-    background-color: rgb(255 255 255 / 0.72);
-    color: inherit;
+    gap: var(--space-2);
+    border: 1px solid rgba(236, 228, 212, 0.22);
+    border-radius: 999px;
+    background-color: rgba(48, 35, 26, 0.92);
+    color: rgba(245, 241, 232, 0.96);
     font: inherit;
-    font-weight: bolder;
-    padding: 0.6rem 0.9rem;
+    font-weight: 600;
+    padding: 0.58rem 0.95rem;
     cursor: pointer;
     opacity: 0;
     visibility: hidden;
     transform: translateY(8px);
     pointer-events: none;
-    transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s ease;
+    box-shadow: var(--shadow-soft);
+    transition:
+        opacity var(--duration-base) var(--easing-gentle),
+        transform var(--duration-base) var(--easing-gentle),
+        visibility var(--duration-base) var(--easing-gentle),
+        box-shadow var(--duration-base) var(--easing-gentle),
+        background-color var(--duration-base) var(--easing-gentle);
     z-index: 1000;
+    backdrop-filter: blur(10px);
 }
 
 .backToTopButton.is-visible {
@@ -31,18 +39,23 @@
 
 .backToTopButton:hover {
     transform: translateY(-2px);
+    background-color: rgba(61, 44, 33, 0.96);
+    box-shadow: 0 12px 22px rgba(16, 11, 8, 0.24);
 }
 
 .backToTopButton:focus-visible {
-    outline: 2px solid currentColor;
+    outline: 2px solid var(--color-forest);
     outline-offset: 2px;
-    text-decoration: underline;
 }
 
 @media (max-width: 768px) {
     .backToTopButton {
-        right: 0.75rem;
+        right: var(--space-3);
         --back-to-top-base-bottom: 0.75rem;
-        padding: 0.7rem 0.85rem;
+        padding: 0.64rem 0.88rem;
+    }
+
+    .backToTopButton span {
+        display: none;
     }
 }

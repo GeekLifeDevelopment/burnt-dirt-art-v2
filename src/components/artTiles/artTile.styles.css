@@ -2,49 +2,52 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    max-width: 1200px;
-    
-    margin: -200px auto 0 auto;
-    padding: 2rem;
-    min-height: 100vh;
+    max-width: var(--max-content-width);
+    margin: 0 auto;
+    padding: 0 var(--page-gutter) var(--space-7);
     position: relative;
     z-index: 10;
 }
 
 .artGrid {
     column-count: 3;
-    column-gap: 2rem;
+    column-gap: var(--space-5);
     width: 100%;
 }
 
 .artCard {
-   
+    background-color: rgba(245, 241, 232, 0.88);
+    border: 1px solid rgba(74, 55, 40, 0.2);
+    border-radius: var(--radius-md);
+    padding: var(--space-3);
+    box-shadow: var(--shadow-soft);
     cursor: pointer;
     break-inside: avoid;
-    margin-bottom: 2rem;
+    margin-bottom: var(--space-5);
+    transition: transform var(--duration-base) var(--easing-gentle), box-shadow var(--duration-base) var(--easing-gentle);
 }
 
 .artCard:hover {
     transform: translateY(-5px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    box-shadow: var(--shadow-card);
 }
 
 .artImage {
     width: 100%;
     height: auto;
     object-fit: cover;
-    border-radius: 4px;
+    border-radius: var(--radius-sm);
 }
 
 .artTitle {
-    margin: 1rem 0 0.5rem 0;
+    margin: 0.9rem 0 0.3rem 0;
     font-size: 1.25rem;
-    color: #333;
+    color: var(--color-walnut);
 }
 
 .artPrice {
     margin: 0;
-    color: rgb(182, 84, 48);
+    color: var(--color-terracotta);
     font-size: 1.1rem;
     font-weight: 700;
 }
@@ -64,7 +67,7 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.9);
+    background-color: rgba(36, 27, 20, 0.78);
     z-index: 1000;
     opacity: 0;
     transition: opacity 0.3s ease;
@@ -79,7 +82,8 @@
 
 .modalContent {
     position: relative;
-    background-color: white;
+    background-color: var(--color-cream);
+    border: 1px solid rgba(74, 55, 40, 0.3);
     padding: 1.25rem;
     border-radius: 12px;
     width: min(760px, 92vw);
@@ -96,7 +100,7 @@
     border: none;
     font-size: 2rem;
     cursor: pointer;
-    color: #333;
+    color: var(--color-walnut);
     width: 40px;
     height: 40px;
     display: flex;
@@ -121,13 +125,13 @@
 
 .modalTitle {
     font-size: 1.6rem;
-    color: #333;
+    color: var(--color-walnut);
     margin: 0.5rem 0;
 }
 
 .modalPrice {
     margin: 0;
-    color: rgb(182, 84, 48);
+    color: var(--color-terracotta);
     font-size: 1.25rem;
     font-weight: 700;
 }
@@ -146,8 +150,8 @@
 .storeButton {
     display: inline-block;
     padding: 0.75rem 1.25rem;
-    background-color: rgb(182, 84, 48);
-    color: #fff;
+    background-color: var(--color-terracotta);
+    color: var(--color-cream);
     text-decoration: none;
     border-radius: 6px;
     font-weight: 600;
@@ -155,7 +159,7 @@
 }
 
 .storeButton:hover {
-    background-color: rgb(150, 60, 30);
+    background-color: var(--color-copper);
 }
 /* Tablet */
 @media (max-width: 768px) {
@@ -165,7 +169,7 @@
     }
     
     .artCard {
-        margin-bottom: 1.5rem;
+        margin-bottom: var(--space-4);
     }
 }
 
@@ -181,8 +185,7 @@
     }
     
     .ArtTileContainer {
-        padding: 1rem;
-        margin: -200px auto 0 auto;
+        padding: 0 var(--space-3) var(--space-6);
     }
 }
 
