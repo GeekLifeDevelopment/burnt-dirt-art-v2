@@ -1,5 +1,6 @@
 ---
 import './navigation.styles.css';
+import headerLogo from '../../assets/bda-header-logo.png';
 
 const { pathname } = Astro.url;
 const isHomePage = pathname === '/' || pathname === '';
@@ -12,7 +13,15 @@ const isShopPrintsPage = pathname === '/shop/prints' || pathname.startsWith('/sh
 
 <nav class={`navContainer ${isHomePage ? 'navContainer--home' : 'navContainer--compact'}`}>
     <div class="navContent ds-container">
-        <a href="/" class="brandMark" aria-label="Burnt Dirt Art home">Burnt Dirt Art</a>
+        <a href="/" class="brandMark" aria-label="Burnt Dirt Art home">
+            <img
+                class="brandMarkImage"
+                src={headerLogo.src}
+                width={headerLogo.width}
+                height={headerLogo.height}
+                alt="Burnt Dirt Art"
+            />
+        </a>
 
         <button
             class="hamburger"
@@ -39,16 +48,6 @@ const isShopPrintsPage = pathname === '/shop/prints' || pathname.startsWith('/sh
             </li>
             <li>
                 <a href="/shop/prints" class={`navLink ${isShopPrintsPage ? 'is-active' : ''}`} aria-current={isShopPrintsPage ? 'page' : undefined}>Shop Prints</a>
-            </li>
-            <li>
-                <a
-                    href="https://www.ebay.com/sch/i.html?_ssn=burnt-dirt-art"
-                    class="navLink navLink--buyNow"
-                    target="_blank"
-                    rel="noopener noreferrer sponsored"
-                >
-                    Buy Now
-                </a>
             </li>
             <li>
                 <a href="/contact" class={`navLink ${isContactPage ? 'is-active' : ''}`} aria-current={isContactPage ? 'page' : undefined}>Contact</a>

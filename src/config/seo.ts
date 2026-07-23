@@ -9,8 +9,7 @@ export const seoConfig = {
   socialLinks: {
     instagram: 'https://www.instagram.com/burntdirtart/',
     facebook: 'https://www.facebook.com/profile.php?id=61582823711371',
-    pinterest: 'https://www.pinterest.com/burntdirtart/',
-    ebay: 'https://www.ebay.com/sch/i.html?_ssn=burnt-dirt-art'
+    pinterest: 'https://www.pinterest.com/burntdirtart/'
   }
 } as const;
 
