@@ -59,6 +59,22 @@ function normalizeToList(value: any): string[] {
     return [String(value).trim().toLowerCase()].filter(Boolean);
 }
 
+function hasNudeStudiesCategory(value: any): boolean {
+    return normalizeToList(value).includes('nude studies');
+}
+
+function getDisplayCategory(value: any): string {
+    if (hasNudeStudiesCategory(value)) {
+        return 'Nude Studies';
+    }
+
+    const rawCategory = Array.isArray(value)
+        ? String(value[0] || '').trim()
+        : String(value || '').trim();
+
+    return rawCategory || 'Uncategorized';
+}
+
 function isChecked(value: any): boolean {
     if (typeof value === 'boolean') return value;
     if (typeof value === 'number') return value === 1;
@@ -133,8 +149,7 @@ if (!space || !accessToken) {
         const categorySet = new Set<string>();
         shopItems.forEach(item => {
             if (item.fields.category) {
-                // Convert to string, trim whitespace and normalize the category
-                const normalizedCategory = String(item.fields.category).trim();
+                const normalizedCategory = getDisplayCategory(item.fields.category);
                 if (normalizedCategory) {
                     categorySet.add(normalizedCategory);
                 }
@@ -215,7 +230,12 @@ const pageSchema = itemListElements.length
                 
                 <div class="shopGrid">
                     {shopItems.map((item) => (
-                        <div class="shopItem" data-category={item.fields.category ? String(item.fields.category).trim() : 'uncategorized'}>
+                        <div
+                            class="shopItem"
+                            data-category={getDisplayCategory(item.fields.category)}
+                            data-is-nude-studies={hasNudeStudiesCategory(item.fields.category) ? 'true' : 'false'}
+                            style={hasNudeStudiesCategory(item.fields.category) ? 'display: none;' : undefined}
+                        >
                             {item.fields.images && item.fields.images.length > 0 && (
                                 <img 
                                     src={`https:${item.fields.images[0].fields.file.url}`}
@@ -268,8 +288,11 @@ const pageSchema = itemListElements.length
 
         shopItems.forEach((item) => {
             const itemCategory = item.getAttribute('data-category');
+            const isNudeStudies = item.getAttribute('data-is-nude-studies') === 'true';
             
-            if (selectedCategory === 'all' || itemCategory === selectedCategory) {
+            if (selectedCategory === 'all') {
+                (item as HTMLElement).style.display = isNudeStudies ? 'none' : 'block';
+            } else if (itemCategory === selectedCategory) {
                 (item as HTMLElement).style.display = 'block';
             } else {
                 (item as HTMLElement).style.display = 'none';

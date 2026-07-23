@@ -12,6 +12,7 @@ type GalleryPiece = {
   title: string;
   description: string;
   category: string;
+  isNudeStudies: boolean;
   storeUrl?: string;
   isSold: boolean;
 };
@@ -62,6 +63,10 @@ function normalizeToList(value: any): string[] {
   }
 
   return [String(value).trim().toLowerCase()].filter(Boolean);
+}
+
+function hasNudeStudiesCategory(value: any): boolean {
+  return normalizeToList(value).includes('nude studies');
 }
 
 function hasPageSelection(item: any, key: 'gallery' | 'shop' | 'store'): boolean {
@@ -133,9 +138,11 @@ if (!space || !accessToken) {
         const file = firstImage?.fields?.file;
         const imageUrl = file?.url ? `https:${file.url}` : '';
         const { isSold, isForSale } = parseSaleState(item);
-        const category = Array.isArray(item.fields.category)
+        const isNudeStudies = hasNudeStudiesCategory(item.fields.category);
+        const rawCategory = Array.isArray(item.fields.category)
           ? String(item.fields.category[0] || '').trim()
           : String(item.fields.category || '').trim();
+        const category = isNudeStudies ? 'Nude Studies' : rawCategory;
 
         return {
           imageUrl,
@@ -144,6 +151,7 @@ if (!space || !accessToken) {
           title: item.fields.title || item.fields.inventoryCode || 'Untitled Artwork',
           description: toText(item.fields.description),
           category: category || 'Uncategorized',
+          isNudeStudies,
           storeUrl: isForSale && item.fields.inventoryCode ? `/shop/${item.fields.inventoryCode}` : undefined,
           isSold
         } satisfies GalleryPiece;
@@ -184,8 +192,10 @@ if (!space || !accessToken) {
           data-index={index}
           data-title={piece.title}
           data-category={piece.category}
+          data-is-nude-studies={piece.isNudeStudies ? 'true' : 'false'}
           data-store-url={piece.storeUrl || ''}
           data-is-sold={piece.isSold ? 'true' : 'false'}
+          style={piece.isNudeStudies ? 'display: none;' : undefined}
         >
           <img
             src={piece.imageUrl}
@@ -231,8 +241,11 @@ if (!space || !accessToken) {
 
     artCards.forEach((card) => {
       const itemCategory = card.getAttribute("data-category");
+      const isNudeStudies = card.getAttribute("data-is-nude-studies") === "true";
 
-      if (selectedCategory === "all" || itemCategory === selectedCategory) {
+      if (selectedCategory === "all") {
+        (card as HTMLElement).style.display = isNudeStudies ? "none" : "block";
+      } else if (itemCategory === selectedCategory) {
         (card as HTMLElement).style.display = "block";
       } else {
         (card as HTMLElement).style.display = "none";
