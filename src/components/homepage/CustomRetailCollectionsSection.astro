@@ -1,0 +1,37 @@
+---
+import lighthouse2 from '../../assets/lighthouse2.jpeg';
+---
+
+<section class="homeCustomCollectionsSection" aria-labelledby="home-custom-collections-title">
+	<div class="ds-container homeCustomCollectionsInner">
+		<div class="homeCustomCollectionsShell">
+			<div class="homeCustomCollectionsCopy ds-stack ds-stack--sm">
+				<p class="ds-eyebrow">Custom Collections</p>
+				<h2 id="home-custom-collections-title">Handmade Art for Gift Shops &amp; Special Places</h2>
+				<p>
+					Burnt Dirt Art creates small, handcrafted collections inspired by the places people remember. We partner with gift shops, museums, visitor centers, galleries, historic sites, and specialty retailers to create artwork connected to their location, story, and community.
+				</p>
+				<p>
+					From lighthouse-inspired pieces to nature, local history, and regional landmarks, each collection is created by hand and designed to feel unique to the shop carrying it.
+				</p>
+				<div class="homeCustomCollectionsActions">
+					<a href="/contact" class="ds-button ds-button--primary">Discuss a Custom Collection</a>
+					<a href="/gallery" class="ds-button ds-button--secondary">View Past Work</a>
+				</div>
+			</div>
+
+			<div class="homeCustomCollectionsGallery" aria-label="Sample lighthouse collection artwork">
+				<figure class="homeCustomCollectionsCard homeCustomCollectionsCard--single">
+					<img
+						src={lighthouse2.src}
+						width={lighthouse2.width}
+						height={lighthouse2.height}
+						alt="Lighthouse collection artwork sample"
+						loading="lazy"
+						decoding="async"
+					/>
+				</figure>
+			</div>
+		</div>
+	</div>
+</section>

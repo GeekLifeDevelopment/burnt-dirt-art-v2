@@ -3,57 +3,91 @@ import './navigation.styles.css';
 
 const { pathname } = Astro.url;
 const isHomePage = pathname === '/' || pathname === '';
+const isAboutPage = pathname === '/about';
+const isGalleryPage = pathname === '/gallery';
+const isContactPage = pathname === '/contact';
+const isShopOriginalsPage = pathname === '/shop' || (pathname.startsWith('/shop/') && !pathname.startsWith('/shop/prints'));
+const isShopPrintsPage = pathname === '/shop/prints' || pathname.startsWith('/shop/prints/');
 ---
 
-<nav class={`navContainer ${!isHomePage ? 'navContainer--compact' : ''}`}>
-    <div class="navContent">
-        <div class="navHeader">
-            <a href="/" class="brandMark" aria-label="Burnt Dirt Art home">Burnt Dirt Art</a>
+<nav class={`navContainer ${isHomePage ? 'navContainer--home' : 'navContainer--compact'}`}>
+    <div class="navContent ds-container">
+        <a href="/" class="brandMark" aria-label="Burnt Dirt Art home">Burnt Dirt Art</a>
 
-            <div class="navHeaderActions">
-                <a
-                    href="https://www.ebay.com/sch/i.html?_ssn=burnt-dirt-art"
-                    class="buyNowHeaderButton"
-                    target="_blank"
-                    rel="noopener noreferrer sponsored"
-                >
-                    <i class="fas fa-shopping-bag"></i> Buy Now
-                </a>
+        <button
+            class="hamburger"
+            id="hamburger"
+            aria-expanded="false"
+            aria-controls="navList"
+            aria-label="Toggle navigation"
+        >
+            <i class="fas fa-bars" aria-hidden="true"></i>
+        </button>
 
-                <button class="hamburger" id="hamburger">
-                    <i class="fas fa-bars"></i>
-                </button>
-            </div>
-        </div>
         <ul class="navList" id="navList">
-            <li><a href="/"><i class="fas fa-home"></i> Home</a></li>
-            <li><a href="/about"><i class="fas fa-user"></i> About</a></li>
-            <li><a href="/gallery"><i class="fas fa-images"></i> Gallery</a></li>
-            <li><a href="/shop"><i class="fas fa-shopping-bag"></i> Shop Originals</a></li>
-            <li><a href="/shop/prints"><i class="fas fa-image"></i> Shop Prints</a></li>
-            <li class="buyNowItem">
+            <li>
+                <a href="/" class={`navLink ${isHomePage ? 'is-active' : ''}`} aria-current={isHomePage ? 'page' : undefined}>Home</a>
+            </li>
+            <li>
+                <a href="/about" class={`navLink ${isAboutPage ? 'is-active' : ''}`} aria-current={isAboutPage ? 'page' : undefined}>About</a>
+            </li>
+            <li>
+                <a href="/gallery" class={`navLink ${isGalleryPage ? 'is-active' : ''}`} aria-current={isGalleryPage ? 'page' : undefined}>Gallery</a>
+            </li>
+            <li>
+                <a href="/shop" class={`navLink ${isShopOriginalsPage ? 'is-active' : ''}`} aria-current={isShopOriginalsPage ? 'page' : undefined}>Shop Originals</a>
+            </li>
+            <li>
+                <a href="/shop/prints" class={`navLink ${isShopPrintsPage ? 'is-active' : ''}`} aria-current={isShopPrintsPage ? 'page' : undefined}>Shop Prints</a>
+            </li>
+            <li>
                 <a
                     href="https://www.ebay.com/sch/i.html?_ssn=burnt-dirt-art"
-                    class="buyNowButton"
+                    class="navLink navLink--buyNow"
                     target="_blank"
                     rel="noopener noreferrer sponsored"
                 >
-                    <i class="fas fa-shopping-bag"></i> Buy Now
+                    Buy Now
                 </a>
             </li>
-            <li><a href="/contact"><i class="fas fa-envelope"></i> Contact</a></li>
+            <li>
+                <a href="/contact" class={`navLink ${isContactPage ? 'is-active' : ''}`} aria-current={isContactPage ? 'page' : undefined}>Contact</a>
+            </li>
         </ul>
     </div>
-    {isHomePage && (
-        <p class="navText">Original custom artwork in fired terracotta, plaster, textiles, oil and watercolors.</p>
-    )}
+
 </nav>
 
 <script>
     const hamburger = document.getElementById('hamburger');
     const navList = document.getElementById('navList');
+    const navLinks = navList?.querySelectorAll('a');
+
+    const closeMenu = () => {
+        navList?.classList.remove('active');
+        hamburger?.setAttribute('aria-expanded', 'false');
+    };
 
     hamburger?.addEventListener('click', () => {
         navList?.classList.toggle('active');
+        const isExpanded = navList?.classList.contains('active') || false;
+        hamburger.setAttribute('aria-expanded', String(isExpanded));
+    });
+
+    navLinks?.forEach((link) => {
+        link.addEventListener('click', closeMenu);
+    });
+
+    window.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') {
+            closeMenu();
+            hamburger?.focus();
+        }
+    });
+
+    window.addEventListener('resize', () => {
+        if (window.innerWidth > 900) {
+            closeMenu();
+        }
     });
 </script>

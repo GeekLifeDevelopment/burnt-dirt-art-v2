@@ -1,7 +1,131 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import '../styles/index.styles.css';
-import ArtTileComponent from '../components/artTiles/ArtTileComponent.astro';
+import '../styles/homepage-redesign.css';
+import * as contentful from 'contentful';
+import heroBackground from '../assets/bda-hero.png';
+import tornEdge from '../assets/torn-edge.png';
+import brownTear from '../assets/brown-tear.png';
+import welcomeArtwork from '../assets/art/bird-feeder.png';
+import CustomRetailCollectionsSection from '../components/homepage/CustomRetailCollectionsSection.astro';
+import StudioJournalSection from '../components/homepage/StudioJournalSection.astro';
+
+type FeaturedPiece = {
+  slug?: string;
+  imageUrl: string;
+  imageWidth?: number;
+  imageHeight?: number;
+  title: string;
+  price?: string;
+  category?: string;
+};
+
+const space = import.meta.env.CONTENTFUL_SPACE_ID || process.env.CONTENTFUL_SPACE_ID;
+const accessToken = import.meta.env.CONTENTFUL_ACCESS_TOKEN || process.env.CONTENTFUL_ACCESS_TOKEN;
+
+function toPrice(value: any): string | undefined {
+  if (value === undefined || value === null) return undefined;
+  const normalized = String(value).trim();
+  if (!normalized) return undefined;
+  return normalized.startsWith('$') ? normalized : `$${normalized}`;
+}
+
+function normalizeToList(value: any): string[] {
+  if (!value) return [];
+
+  if (Array.isArray(value)) {
+    return value
+      .map((entry) => (typeof entry === 'string' ? entry : String(entry ?? '')))
+      .map((entry) => entry.trim().toLowerCase())
+      .filter(Boolean);
+  }
+
+  if (typeof value === 'string') {
+    return value
+      .split(/[;,]/)
+      .map((entry) => entry.trim().toLowerCase())
+      .filter(Boolean);
+  }
+
+  return [String(value).trim().toLowerCase()].filter(Boolean);
+}
+
+function hasHomeSelection(item: any): boolean {
+  if (item.fields.home === true) return true;
+
+  const candidates = [
+    item.fields.page,
+    item.fields.pages,
+    item.fields.pageSection,
+    item.fields.pageSections,
+    item.fields.sections
+  ];
+
+  const values = candidates.flatMap((candidate) => normalizeToList(candidate));
+  return values.includes('home');
+}
+
+let featuredPieces: FeaturedPiece[] = [
+  {
+    imageUrl: welcomeArtwork.src,
+    imageWidth: welcomeArtwork.width,
+    imageHeight: welcomeArtwork.height,
+    title: 'Oriole Feeder',
+    price: '$40',
+    category: 'Terracotta'
+  }
+];
+
+if (space && accessToken) {
+  const client = contentful.createClient({
+    space,
+    accessToken
+  });
+
+  try {
+    const entries = await client.getEntries({
+      content_type: 'artProduct'
+    });
+
+    const selectedItems = entries.items.filter((item: any) => hasHomeSelection(item));
+    const sourceItems = selectedItems.length > 0 ? selectedItems : entries.items;
+
+    const mapped = sourceItems
+      .map((item: any) => {
+        const firstImage = item.fields.images?.[0];
+        const file = firstImage?.fields?.file;
+        const imageUrl = file?.url ? `https:${file.url}` : '';
+
+        if (!imageUrl) return null;
+
+        return {
+          slug: item.fields.inventoryCode,
+          imageUrl,
+          imageWidth: file?.details?.image?.width,
+          imageHeight: file?.details?.image?.height,
+          title: item.fields.title || item.fields.inventoryCode || 'Untitled Artwork',
+          price: toPrice(item.fields.price),
+          category: typeof item.fields.category === 'string' ? item.fields.category : undefined
+        } satisfies FeaturedPiece;
+      })
+      .filter(Boolean) as FeaturedPiece[];
+
+    if (mapped.length > 0) {
+      featuredPieces = mapped.slice(0, 5);
+    }
+  } catch (error) {
+    console.error('Error fetching featured artwork for homepage:', error);
+  }
+}
+
+featuredPieces = featuredPieces.slice(0, 5);
+
+const pinboardStyles = [
+  { rotate: -2, lift: 0, attach: 'pin' },
+  { rotate: 1, lift: 16, attach: 'tape' },
+  { rotate: -1, lift: -8, attach: 'corner' },
+  { rotate: 2, lift: 10, attach: 'clip' },
+  { rotate: -1, lift: -4, attach: 'tape' }
+];
 ---
 
 
@@ -10,39 +134,115 @@ import ArtTileComponent from '../components/artTiles/ArtTileComponent.astro';
 	description="Explore original artwork by Rebecca C. Sorenson, including terracotta sculpture, pastel drawings, figurative studies, handmade cookie presses, and artisan garden stakes."
 	canonicalPath="/"
 >
-	<ArtTileComponent/>
-	<!-- <section id="welcome-section">
-		<div id="text-box">
-			<h1>Hi, I'm Rebecca!</h1>
-			<div class="image-box image-mobile-hide">
-			<img src={kidsImage.src} alt="Rebecca Sorenson Profile Picture" />
+	<section class="homeCinematicHero" style={`--home-hero-image: url(${heroBackground.src}); --home-torn-image: url(${tornEdge.src})`} aria-labelledby="home-hero-title">
+		<div class="homeCinematicHeroOverlay" aria-hidden="true"></div>
+		<div class="ds-container homeCinematicHeroInner">
+			<div class="homeCinematicHeroCopy ds-stack">
+				<h1 id="home-hero-title">Handcrafted art from the heart.</h1>
+				<p class="homeHeroLead">
+					Original custom artwork in fired terracotta, plaster, textiles, oil, and watercolors.
+				</p>
+				<div class="homeHeroActions">
+					<a href="/gallery" class="ds-button ds-button--primary">Browse Originals</a>
+					<a href="/about" class="ds-button ds-button--secondary">Meet the Artist</a>
+				</div>
+			</div>
 		</div>
-			<p>Rebecca C. Sorenson is a 1997 graduate of The School of the Art Institute of Chicago.  After graduation she worked as assistant to the registrar of the anthropology department at The Field Museum in Chicago, before returning home to work as an EBD teacher, then a high school science teacher.  Rebecca lives with her husband and three daughters in Racine, Wisconsin.</p>
-		</div>
-		
-		
-		
-		<div class="image-box image-desktop-hide">
-			<img src={kidsImage.src} alt="Rebecca Sorenson Profile Picture" />
+		<div class="homeTornDivider" aria-hidden="true"></div>
+	</section>
+
+	<section class="homeWelcomeSection" aria-labelledby="home-welcome-title">
+		<div class="ds-container homeWelcomeInner">
+			<figure class="homeWelcomeArtwork">
+				<img
+					src="https://images.ctfassets.net/6ljfnrqcb4z9/5SXdpuL7P9cUHQ4ZMJxhVd/f470c886ca5967ff8993137659219f3d/ART-2026-132890941-1.jpg?w=760&q=80&fm=webp"
+					width={3024}
+					height={4032}
+					alt="Hand-sculpted terracotta orchid wall sconce for air plants, 6x7 in"
+					loading="lazy"
+					decoding="async"
+				/>
+			</figure>
+
+			<div class="homeWelcomeStory ds-stack ds-stack--sm">
+				<p class="ds-eyebrow">Welcome to Burnt Dirt Art</p>
+				<h2 id="home-welcome-title">Art that tells a story.</h2>
+				<p>
+					Each piece is thoughtfully created using time-honored techniques and a love for nature, texture, and tradition.
+					From carved terracotta to delicate watercolors, every creation is made to bring warmth and meaning into your space.
+				</p>
+				<a href="/about" class="homeInlineLink">Learn more about the artist <i class="fas fa-arrow-right"></i></a>
+			</div>
+
+			<ul class="homeValues" aria-label="Studio values">
+				<li>
+					<span class="homeValueIcon homeValueIcon--hand"><i class="fas fa-hand-paper"></i></span>
+					<div>
+						<h3>Handmade</h3>
+						<p>Every piece is made by hand with care and intention.</p>
+					</div>
+				</li>
+				<li>
+					<span class="homeValueIcon homeValueIcon--leaf"><i class="fas fa-leaf"></i></span>
+					<div>
+						<h3>Inspired by Nature</h3>
+						<p>Natural forms, textures, and seasonal rhythms shape each collection.</p>
+					</div>
+				</li>
+				<li>
+					<span class="homeValueIcon homeValueIcon--heart"><i class="fas fa-heart"></i></span>
+					<div>
+						<h3>One of a Kind</h3>
+						<p>Original work created in small batches or as singular studio pieces.</p>
+					</div>
+				</li>
+			</ul>
 		</div>
 	</section>
-	<section id="about-art-section">
-		<div class="art-image-box">
-			<img src={artImage.src} alt="Rebecca Sorenson Profile Picture" />
+
+	<section class="homeFeaturedSection" aria-labelledby="home-featured-title" style={`--home-collections-tear-image: url(${brownTear.src})`}>
+		<div class="ds-container">
+			<div class="homeFeaturedHeader">
+				<p class="ds-eyebrow">Featured Artwork</p>
+				<h2 id="home-featured-title">Explore Original Creations</h2>
+				<p class="homeFeaturedLead">Handcrafted artwork made with care, inspired by nature, and created to last.</p>
+			</div>
+
+			<ul class="homeFeaturedBoard" aria-label="Featured artwork">
+				{featuredPieces.map((piece, index) => {
+					const meta = pinboardStyles[index % pinboardStyles.length];
+					const pinStyle = `--card-rotate: ${meta.rotate}deg; --card-lift: ${meta.lift}px; z-index: ${10 + index};`;
+					return (
+						<li class="homeFeaturedPin" style={pinStyle}>
+							<a class="homeFeaturedCard" href={piece.slug ? `/shop/${piece.slug}` : '/gallery'}>
+								<span class={`homeFeaturedAttach homeFeaturedAttach--${meta.attach}`} aria-hidden="true"></span>
+								<span class="homeFeaturedCardMedia">
+									<img
+										src={piece.imageUrl}
+										width={piece.imageWidth}
+										height={piece.imageHeight}
+										alt={piece.title}
+										loading="lazy"
+										decoding="async"
+									/>
+								</span>
+								<span class="homeFeaturedCardBody">
+									<span class="homeFeaturedCardTitle">{piece.title}</span>
+									{piece.price && <span class="homeFeaturedCardPrice">{piece.price}</span>}
+								</span>
+							</a>
+						</li>
+					);
+				})}
+			</ul>
+
+			<div class="homeFeaturedCta">
+				<a href="/gallery" class="homeFeaturedCtaLabel">View All Original Artwork <i class="fas fa-arrow-right"></i></a>
+			</div>
 		</div>
-		<div class="art-section-text">
-		<h2>About My Art</h2>
-		<p>My art is inspired by the natural world, particularly the textures and colors found in soil, rocks, and plants. I use a variety of media, including painting, sculpture, and mixed media, to explore these themes. My goal is to create pieces that evoke a sense of connection to the earth and encourage viewers to appreciate the beauty of the natural environment.</p>
-		</div>
-	</section> -->
+		<div class="homeFeaturedTear" aria-hidden="true"></div>
+	</section>
+
+	<CustomRetailCollectionsSection />
+	<StudioJournalSection />
 </Layout>
-
-<style>
-	:global(.ArtTileContainer) {
-		margin: -200px auto 0 auto;
-	}
-
-	:global(.artGrid) {
-		margin-top: 0;
-	}
-</style>

@@ -1,0 +1,53 @@
+---
+import './homeHero.styles.css';
+import heroImage from '../../assets/art/inProgress.jpeg';
+import detailImage from '../../assets/art/museum.png';
+---
+
+<section class="homeHero ds-section ds-section-divider" aria-labelledby="home-hero-title">
+  <div class="ds-container homeHeroInner">
+    <div class="homeHeroCopy ds-stack">
+      <p class="ds-eyebrow">Welcome to Burnt Dirt Art</p>
+      <h1 id="home-hero-title" class="ds-display">Handcrafted art from the heart.</h1>
+      <p class="ds-lead">
+        Original custom artwork in fired terracotta, plaster, textiles, oil and watercolors.
+        Step into the studio, explore each collection slowly, and discover the story behind every piece.
+      </p>
+
+      <div class="homeHeroActions">
+        <a class="ds-button ds-button--primary" href="/gallery">Browse Original Artwork</a>
+        <a class="ds-button ds-button--secondary" href="/about">Meet the Artist</a>
+      </div>
+
+      <ul class="homeHeroPillars" aria-label="Studio values">
+        <li><span class="ds-chip">Handmade</span></li>
+        <li><span class="ds-chip">Inspired by Nature</span></li>
+        <li><span class="ds-chip">One of a Kind</span></li>
+      </ul>
+    </div>
+
+    <div class="homeHeroArtwork" aria-hidden="true">
+      <figure class="heroFrame">
+        <img
+          src={heroImage.src}
+          width={heroImage.width}
+          height={heroImage.height}
+          alt="Work in progress artwork inside the Burnt Dirt Art studio"
+          loading="eager"
+          decoding="async"
+          fetchpriority="high"
+        />
+      </figure>
+      <figure class="detailFrame">
+        <img
+          src={detailImage.src}
+          width={detailImage.width}
+          height={detailImage.height}
+          alt="Framed artwork detail with warm tones"
+          loading="lazy"
+          decoding="async"
+        />
+      </figure>
+    </div>
+  </div>
+</section>
