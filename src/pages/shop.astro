@@ -194,7 +194,6 @@ const pinboardStyles = [
     canonicalPath="/shop"
     pageSchema={pageSchema}
 >
-<<<<<<< HEAD
     <section class="galleryIntroSection" aria-labelledby="shop-title">
         <div class="ds-container">
             <div class="homeFeaturedHeader">
@@ -206,76 +205,6 @@ const pinboardStyles = [
             </div>
         </div>
     </section>
-=======
-    <div class="shopContainer">
-        <h1>Shop</h1>
-        <p class="shopIntro">
-            Browse current available work below. Purchases are completed through eBay listings, where you can view full details, shipping info, and current pricing.
-        </p>
-        <p class="shopUpdates">
-            Listings update regularly as new original pieces and handmade functional art are completed.
-        </p>
-        
-        {shopItems.length > 0 ? (
-            <>
-                <div class="filterContainer">
-                    <label for="categoryFilter">Filter by Category:</label>
-                    <select id="categoryFilter">
-                        <option value="all">All Categories</option>
-                        {categories.map(category => (
-                            <option value={category}>{category}</option>
-                        ))}
-                    </select>
-                </div>
-                
-                <div class="shopGrid">
-                    {shopItems.map((item) => (
-                        <div
-                            class="shopItem"
-                            data-category={getDisplayCategory(item.fields.category)}
-                            data-is-nude-studies={hasNudeStudiesCategory(item.fields.category) ? 'true' : 'false'}
-                            style={hasNudeStudiesCategory(item.fields.category) ? 'display: none;' : undefined}
-                        >
-                            {item.fields.images && item.fields.images.length > 0 && (
-                                <img 
-                                    src={`https:${item.fields.images[0].fields.file.url}`}
-                                    alt={item.fields.title || item.fields.inventoryCode}
-                                    width={item.fields.images[0].fields.file.details?.image?.width}
-                                    height={item.fields.images[0].fields.file.details?.image?.height}
-                                    loading="lazy"
-                                    decoding="async"
-                                />
-                            )}
-                            <h3>{item.fields.title || item.fields.inventoryCode}</h3>
-                            {item.fields.price && (
-                                <p class="price">${item.fields.price}</p>
-                            )}
-                            {toText(item.fields.productLink) && (
-                                <a
-                                    href={toText(item.fields.productLink)}
-                                    class="detailsLink ebayLink"
-                                    target="_blank"
-                                    rel="noopener noreferrer sponsored"
-                                >
-                                    View on eBay
-                                </a>
-                            )}
-                            {item.fields.inventoryCode ? (
-                                <a href={`/shop/${item.fields.inventoryCode}`} class="detailsLink">
-                                    Click for more details
-                                </a>
-                            ) : (
-                                <span class="noLink">Details unavailable</span>
-                            )}
-                        </div>
-                    ))}
-                </div>
-            </>
-        ) : (
-            <p>Visit my eBay store to purchase original artwork and prints: <a href="https://www.ebay.com/sch/i.html?_ssn=burnt-dirt-art" target="_blank" rel="noopener noreferrer sponsored">Burnt Dirt Art on eBay</a></p>
-        )}
-    </div>
->>>>>>> origin/main
 
     <section class="galleryBoardSection">
         <div class="ds-container">
@@ -343,24 +272,10 @@ const pinboardStyles = [
     categoryFilter?.addEventListener('change', () => {
         const selectedCategory = categoryFilter.value;
 
-<<<<<<< HEAD
         shopPins.forEach((pin) => {
             const itemCategory = pin.getAttribute('data-category');
 
             pin.style.display = selectedCategory === 'all' || itemCategory === selectedCategory ? '' : 'none';
-=======
-        shopItems.forEach((item) => {
-            const itemCategory = item.getAttribute('data-category');
-            const isNudeStudies = item.getAttribute('data-is-nude-studies') === 'true';
-            
-            if (selectedCategory === 'all') {
-                (item as HTMLElement).style.display = isNudeStudies ? 'none' : 'block';
-            } else if (itemCategory === selectedCategory) {
-                (item as HTMLElement).style.display = 'block';
-            } else {
-                (item as HTMLElement).style.display = 'none';
-            }
->>>>>>> origin/main
         });
     });
 </script>

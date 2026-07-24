@@ -194,7 +194,6 @@ if (!space || !accessToken) {
       </div>
     )}
 
-<<<<<<< HEAD
     <ul class="homeFeaturedBoard galleryBoard" aria-label="Gallery artwork">
       {
         artPieces.map((piece, index) => {
@@ -233,36 +232,6 @@ if (!space || !accessToken) {
         })
       }
     </ul>
-=======
-  <div class="artGrid">
-    {
-      artPieces.map((piece, index) => (
-        <div
-          class="artCard"
-          data-index={index}
-          data-title={piece.title}
-          data-category={piece.category}
-          data-is-nude-studies={piece.isNudeStudies ? 'true' : 'false'}
-          data-store-url={piece.storeUrl || ''}
-          data-is-sold={piece.isSold ? 'true' : 'false'}
-          style={piece.isNudeStudies ? 'display: none;' : undefined}
-        >
-          <img
-            src={piece.imageUrl}
-            alt={piece.title}
-            class="artImage"
-            width={piece.imageWidth}
-            height={piece.imageHeight}
-            loading="lazy"
-            decoding="async"
-          />
-          {piece.isSold && <span class="soldBadge">SOLD</span>}
-          {!piece.isSold && <span class="forSaleBadge">For Sale</span>}
-          <h3 class="artTitle">{piece.title}</h3>
-        </div>
-      ))
-    }
->>>>>>> origin/main
   </div>
 </section>
 
@@ -291,22 +260,11 @@ if (!space || !accessToken) {
   categoryFilter?.addEventListener("change", () => {
     const selectedCategory = categoryFilter.value;
 
-<<<<<<< HEAD
     artPins.forEach((pin) => {
       const itemCategory = pin.getAttribute("data-category");
 
       if (selectedCategory === "all" || itemCategory === selectedCategory) {
         (pin as HTMLElement).style.display = "";
-=======
-    artCards.forEach((card) => {
-      const itemCategory = card.getAttribute("data-category");
-      const isNudeStudies = card.getAttribute("data-is-nude-studies") === "true";
-
-      if (selectedCategory === "all") {
-        (card as HTMLElement).style.display = isNudeStudies ? "none" : "block";
-      } else if (itemCategory === selectedCategory) {
-        (card as HTMLElement).style.display = "block";
->>>>>>> origin/main
       } else {
         (pin as HTMLElement).style.display = "none";
       }
