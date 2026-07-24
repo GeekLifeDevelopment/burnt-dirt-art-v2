@@ -9,6 +9,7 @@ const isGalleryPage = pathname === '/gallery';
 const isContactPage = pathname === '/contact';
 const isShopOriginalsPage = pathname === '/shop' || (pathname.startsWith('/shop/') && !pathname.startsWith('/shop/prints'));
 const isShopPrintsPage = pathname === '/shop/prints' || pathname.startsWith('/shop/prints/');
+const isCartPage = pathname === '/cart';
 ---
 
 <nav class={`navContainer ${isHomePage ? 'navContainer--home' : 'navContainer--compact'}`}>
@@ -50,6 +51,13 @@ const isShopPrintsPage = pathname === '/shop/prints' || pathname.startsWith('/sh
                 <a href="/shop/prints" class={`navLink ${isShopPrintsPage ? 'is-active' : ''}`} aria-current={isShopPrintsPage ? 'page' : undefined}>Shop Prints</a>
             </li>
             <li>
+                <a href="/cart" class={`navLink navLink--cart ${isCartPage ? 'is-active' : ''}`} aria-current={isCartPage ? 'page' : undefined}>
+                    <i class="fas fa-shopping-bag" aria-hidden="true"></i>
+                    <span>Cart</span>
+                    <span class="cartCount" id="navCartCount" aria-live="polite">0</span>
+                </a>
+            </li>
+            <li>
                 <a href="/contact" class={`navLink ${isContactPage ? 'is-active' : ''}`} aria-current={isContactPage ? 'page' : undefined}>Contact</a>
             </li>
         </ul>
@@ -58,9 +66,22 @@ const isShopPrintsPage = pathname === '/shop/prints' || pathname.startsWith('/sh
 </nav>
 
 <script>
+    import { CART_EVENTS, getCartCount } from '../../scripts/cart';
+
     const hamburger = document.getElementById('hamburger');
     const navList = document.getElementById('navList');
     const navLinks = navList?.querySelectorAll('a');
+    const navCartCount = document.getElementById('navCartCount');
+
+    const refreshCartCount = () => {
+        const count = getCartCount();
+        if (navCartCount) {
+            navCartCount.textContent = String(count);
+            navCartCount.classList.toggle('is-empty', count === 0);
+        }
+    };
+
+    refreshCartCount();
 
     const closeMenu = () => {
         navList?.classList.remove('active');
@@ -87,6 +108,13 @@ const isShopPrintsPage = pathname === '/shop/prints' || pathname.startsWith('/sh
     window.addEventListener('resize', () => {
         if (window.innerWidth > 900) {
             closeMenu();
+        }
+    });
+
+    window.addEventListener(CART_EVENTS.UPDATED, refreshCartCount);
+    window.addEventListener('storage', (event) => {
+        if (event.key === 'bda_cart_v1') {
+            refreshCartCount();
         }
     });
 </script>

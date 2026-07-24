@@ -109,6 +109,30 @@
     color: var(--terracotta);
 }
 
+.navLink--cart {
+    gap: 0.4rem;
+}
+
+.cartCount {
+    min-width: 1.25rem;
+    height: 1.25rem;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 0.35rem;
+    background-color: var(--terracotta);
+    color: var(--cream);
+    font-size: 0.72rem;
+    line-height: 1;
+    font-family: var(--font-sans);
+    font-weight: 700;
+}
+
+.cartCount.is-empty {
+    background-color: rgba(59, 42, 32, 0.36);
+}
+
 .navLink:focus-visible,
 .hamburger:focus-visible {
     outline: 2px solid var(--terracotta);
@@ -183,6 +207,16 @@
         padding: 0.86rem var(--page-gutter);
         font-family: var(--font-sans);
         font-size: 1.02rem;
+    }
+
+    .navLink--cart {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+    }
+
+    .cartCount {
+        margin-left: auto;
     }
 
     .navLink::after {

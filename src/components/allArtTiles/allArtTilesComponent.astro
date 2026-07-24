@@ -247,6 +247,7 @@ if (!space || !accessToken) {
   const closeBtn = document.getElementById("galleryCloseBtn");
   const categoryFilter = document.getElementById("galleryCategoryFilter") as HTMLSelectElement;
   const artPins = document.querySelectorAll(".galleryPin");
+  let activeModalPin: Element | null = null;
 
   categoryFilter?.addEventListener("change", () => {
     const selectedCategory = categoryFilter.value;
@@ -289,7 +290,34 @@ if (!space || !accessToken) {
       }
     }
 
+    activeModalPin = pin;
     modal?.classList.add("active");
+    document.body.classList.add("modal-open");
+  }
+
+  function getVisiblePins(): Element[] {
+    return Array.from(artPins).filter((pin) => {
+      return (pin as HTMLElement).style.display !== "none";
+    });
+  }
+
+  function navigateModal(direction: 1 | -1) {
+    if (!modal?.classList.contains("active")) return;
+
+    const visiblePins = getVisiblePins();
+    if (visiblePins.length === 0) return;
+
+    const currentIndex = activeModalPin ? visiblePins.indexOf(activeModalPin) : -1;
+    const startIndex = currentIndex >= 0 ? currentIndex : 0;
+    const nextIndex = (startIndex + direction + visiblePins.length) % visiblePins.length;
+
+    openPin(visiblePins[nextIndex]);
+  }
+
+  function closeModal() {
+    modal?.classList.remove("active");
+    document.body.classList.remove("modal-open");
+    activeModalPin = null;
   }
 
   artPins.forEach((pin) => {
@@ -304,13 +332,30 @@ if (!space || !accessToken) {
     });
   });
 
-  closeBtn?.addEventListener("click", () => {
-    modal?.classList.remove("active");
-  });
+  closeBtn?.addEventListener("click", closeModal);
 
   modal?.addEventListener("click", (e) => {
     if (e.target === modal) {
-      modal.classList.remove("active");
+      closeModal();
+    }
+  });
+
+  window.addEventListener("keydown", (e) => {
+    const key = (e as KeyboardEvent).key;
+    if (key === "Escape" && modal?.classList.contains("active")) {
+      closeModal();
+      return;
+    }
+
+    if (key === "ArrowRight" && modal?.classList.contains("active")) {
+      e.preventDefault();
+      navigateModal(1);
+      return;
+    }
+
+    if (key === "ArrowLeft" && modal?.classList.contains("active")) {
+      e.preventDefault();
+      navigateModal(-1);
     }
   });
 </script>

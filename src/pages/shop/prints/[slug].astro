@@ -1,5 +1,6 @@
 ---
 import Layout from '../../../layouts/Layout.astro';
+import '../../../styles/homepage-redesign.css';
 import * as contentful from 'contentful';
 import { artistName } from '../../../config/seo';
 
@@ -186,7 +187,6 @@ const { item } = Astro.props;
 const printTitle = toText(fieldValue(item, ['printTitle', 'PrintTitle'])) || item.fields.title || item.fields.inventoryCode;
 const printDescription = toText(fieldValue(item, ['printDescription', 'PrintDescription'])) || toText(item.fields.description);
 const printPrice = fieldValue(item, ['printPrice', 'PrintPrice']) || item.fields.price;
-const printLink = toText(fieldValue(item, ['printLink', 'PrintLink'])) || toText(item.fields.productLink);
 const { isSold: isOriginalSold } = parseSaleState(item);
 const hasOriginalAvailable = Boolean(item.fields.inventoryCode) && isShopSelected(item) && !isOriginalSold;
 const preferredImages = getPreferredImages(item);
@@ -212,7 +212,7 @@ const printSchema = {
             price: String(printPrice),
             priceCurrency: 'USD',
             availability: 'https://schema.org/InStock',
-            url: printLink || new URL(`/shop/prints/${item.fields.inventoryCode}`, siteUrl).toString()
+            url: new URL(`/shop/prints/${item.fields.inventoryCode}`, siteUrl).toString()
         }
         : undefined,
     creator: {
@@ -231,90 +231,117 @@ const printSchema = {
     ogType="product"
     pageSchema={printSchema}
 >
-    <div class="productContainer">
-        <div class="productContent">
-            <div class="imageSection">
-                {preferredImages.length > 0 && (
-                    <div class="imageCarousel">
-                        <div class="imageContainer">
-                            {preferredImages.map((image: any, index: number) => (
-                                <img
-                                    src={`https:${image.fields.file.url}`}
-                                    alt={`${printTitle} - Image ${index + 1}`}
-                                    class={`productImage ${index === 0 ? 'active' : ''}`}
-                                    data-index={index}
-                                    width={image.fields.file.details?.image?.width}
-                                    height={image.fields.file.details?.image?.height}
-                                    loading={index === 0 ? 'eager' : 'lazy'}
-                                    decoding="async"
-                                />
-                            ))}
-                        </div>
-                        {preferredImages.length > 1 && (
-                            <div class="carouselDots">
-                                {preferredImages.map((_: any, index: number) => (
-                                    <button
-                                        class={`dot ${index === 0 ? 'active' : ''}`}
+    <section class="productPage" aria-labelledby="print-title">
+        <div class="ds-container">
+            <header class="productHeader">
+                <p class="ds-eyebrow">Art Print</p>
+                <h1 id="print-title">{printTitle}</h1>
+            </header>
+
+            <div class="productContent">
+                <div class="imageSection">
+                    {preferredImages.length > 0 && (
+                        <div class="imageCarousel">
+                            <div class="imageContainer">
+                                {preferredImages.map((image: any, index: number) => (
+                                    <img
+                                        src={`https:${image.fields.file.url}`}
+                                        alt={`${printTitle} - Image ${index + 1}`}
+                                        class={`productImage ${index === 0 ? 'active' : ''}`}
                                         data-index={index}
-                                        aria-label={`View image ${index + 1}`}
-                                    ></button>
+                                        width={image.fields.file.details?.image?.width}
+                                        height={image.fields.file.details?.image?.height}
+                                        loading={index === 0 ? 'eager' : 'lazy'}
+                                        decoding="async"
+                                    />
                                 ))}
                             </div>
+                            {preferredImages.length > 1 && (
+                                <div class="carouselDots">
+                                    {preferredImages.map((_: any, index: number) => (
+                                        <button
+                                            class={`dot ${index === 0 ? 'active' : ''}`}
+                                            data-index={index}
+                                            aria-label={`View image ${index + 1}`}
+                                        ></button>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    )}
+                </div>
+
+                <div class="detailsSection">
+                    {printPrice && (
+                        <p class="price">${printPrice}</p>
+                    )}
+
+                    <dl class="detailList">
+                        {item.fields.dimensions && (
+                            <div class="detailItem">
+                                <dt>Dimensions</dt>
+                                <dd>{item.fields.dimensions}</dd>
+                            </div>
                         )}
-                    </div>
-                )}
-            </div>
+                    </dl>
 
-            <div class="detailsSection">
-                <h1>{printTitle}</h1>
-
-                {printPrice && (
-                    <p class="price">${printPrice}</p>
-                )}
-
-                {item.fields.dimensions && (
-                    <div class="detailItem">
-                        <strong>Dimensions:</strong> {item.fields.dimensions}
-                    </div>
-                )}
-
-                {printDescription && (
-                    <div class="description">
-                        <h3>Description</h3>
-                        <p style="white-space: pre-wrap;">{printDescription}</p>
-                    </div>
-                )}
-
-                <div class="actions">
-                    {printLink && (
-                        <a href={printLink} target="_blank" rel="noopener noreferrer sponsored" class="ebayButton">
-                            View Print Listing
-                        </a>
+                    {printDescription && (
+                        <div class="description">
+                            <h2>Description</h2>
+                            <p style="white-space: pre-wrap;">{printDescription}</p>
+                        </div>
                     )}
-                    {hasOriginalAvailable && (
-                        <a href={`/shop/${item.fields.inventoryCode}`} class="originalButton">
-                            Original Art Available
-                        </a>
-                    )}
-                    <a href="/shop/prints" class="backButton">Back to Prints</a>
+
+                    <div class="actions">
+                        <button
+                            type="button"
+                            class="cartButton addToCartButton"
+                            data-cart-id={`print:${item.fields.inventoryCode || printTitle || 'item'}`}
+                            data-sku={item.fields.inventoryCode || ''}
+                            data-title={printTitle}
+                            data-price={String(printPrice ?? '')}
+                            data-image={primaryImage || ''}
+                            data-detail-url={`/shop/prints/${item.fields.inventoryCode || ''}`}
+                            data-type="print"
+                            data-single="false"
+                        >
+                            Add to Cart
+                        </button>
+                        {hasOriginalAvailable && (
+                            <a href={`/shop/${item.fields.inventoryCode}`} class="originalButton">
+                                Original Art Available
+                            </a>
+                        )}
+                        <a href="/shop/prints" class="backButton">Back to Prints</a>
+                    </div>
+                    <p class="cartFeedback" aria-live="polite"></p>
                 </div>
             </div>
         </div>
-    </div>
+    </section>
 </Layout>
 
 <style>
-    .productContainer {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 2rem;
+    .productPage {
+        background: var(--home-paper);
+        padding: clamp(2rem, 4vw, 3.2rem) 0 clamp(2.6rem, 5vw, 4rem);
+    }
+
+    .productHeader {
+        max-width: 52rem;
+        margin: 0 auto clamp(1.2rem, 2.4vw, 1.9rem);
+        text-align: center;
+    }
+
+    .productHeader h1 {
+        margin-bottom: 0;
     }
 
     .productContent {
         display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 3rem;
-        margin-top: 2rem;
+        grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
+        gap: clamp(1.4rem, 3.5vw, 2.8rem);
+        align-items: start;
     }
 
     .imageSection {
@@ -330,24 +357,29 @@ const printSchema = {
     .imageContainer {
         position: relative;
         width: 100%;
-        min-height: 400px;
+        min-height: 290px;
+        max-width: 520px;
+        margin: 0 auto;
         display: flex;
         align-items: center;
         justify-content: center;
-        border-radius: 8px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        border: 1px solid rgba(74, 55, 40, 0.16);
+        border-radius: 3px;
+        background: #fbf6ea;
+        padding: 0.6rem;
+        box-shadow: 0 10px 22px rgba(47, 34, 24, 0.12);
         touch-action: pan-y;
     }
 
     .productImage {
         max-width: 100%;
-        max-height: 80vh;
+        max-height: min(62vh, 540px);
         width: auto;
         height: auto;
         object-fit: contain;
         opacity: 0;
         transition: opacity 0.3s ease-in-out;
-        border-radius: 8px;
+        border: 1px solid rgba(74, 55, 40, 0.14);
         display: none;
     }
 
@@ -380,78 +412,132 @@ const printSchema = {
     }
 
     .dot.active {
-        background-color: rgb(182, 84, 48);
+        background-color: var(--color-terracotta);
     }
 
-    .detailsSection h1 {
-        margin-top: 0;
+    .detailsSection {
+        border: 1px solid rgba(74, 55, 40, 0.18);
+        border-radius: 4px;
+        background: #fdf8ef;
+        padding: clamp(1rem, 2vw, 1.45rem);
+        box-shadow: 0 8px 18px rgba(47, 34, 24, 0.1);
     }
 
     .price {
-        font-size: 2rem;
+        font-size: clamp(1.6rem, 2.8vw, 2rem);
         font-weight: bold;
-        color: rgb(182, 84, 48);
-        margin: 1rem 0;
+        color: var(--color-terracotta);
+        margin: 0 0 1rem;
+    }
+
+    .detailList {
+        margin: 0;
+        padding: 0;
     }
 
     .detailItem {
-        margin: 1rem 0;
-        font-size: 1.1rem;
+        margin: 0 0 0.85rem;
+        display: grid;
+        gap: 0.2rem;
+    }
+
+    .detailItem dt {
+        font-weight: 700;
+        color: var(--color-walnut);
+    }
+
+    .detailItem dd {
+        margin: 0;
+        color: rgba(47, 43, 40, 0.86);
     }
 
     .description {
-        margin: 2rem 0;
+        margin: 1.4rem 0 0;
     }
 
-    .description h3 {
+    .description h2 {
         margin-bottom: 0.5rem;
+        font-size: 1.05rem;
+        color: var(--color-walnut);
     }
 
     .description p {
         line-height: 1.6;
+        margin: 0;
+        color: rgba(47, 43, 40, 0.88);
     }
 
     .actions {
         display: flex;
+        flex-wrap: wrap;
         gap: 1rem;
-        margin-top: 2rem;
+        margin-top: 1.6rem;
     }
 
-    .ebayButton, .originalButton, .backButton {
+    .cartButton,
+    .originalButton,
+    .backButton {
         display: inline-block;
         padding: 0.75rem 1.5rem;
         text-decoration: none;
         border-radius: 4px;
-        font-weight: bold;
-        transition: background-color 0.3s;
+        font-weight: 700;
+        transition: background-color 0.3s, transform 0.2s;
+        border: 1px solid transparent;
+        cursor: pointer;
+        font-size: 0.96rem;
     }
 
-    .ebayButton {
-        background-color: rgb(182, 84, 48);
-        color: white;
+    .cartButton {
+        background: var(--color-terracotta);
+        color: #fdf6ea;
     }
 
-    .ebayButton:hover {
-        background-color: rgb(150, 60, 30);
+    .cartButton:hover {
+        background: #925239;
+        transform: translateY(-1px);
+    }
+
+    .cartButton:disabled {
+        background: rgba(74, 55, 40, 0.45);
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    .cartFeedback {
+        min-height: 1.1rem;
+        margin: 0.7rem 0 0;
+        color: #7c3f22;
+        font-size: 0.9rem;
+        font-weight: 700;
+        opacity: 0;
+        transform: translateY(2px);
+        transition: opacity 0.25s ease, transform 0.25s ease;
+    }
+
+    .cartFeedback.is-visible {
+        opacity: 1;
+        transform: translateY(0);
     }
 
     .originalButton {
-        background-color: rgb(225, 210, 194);
-        color: rgb(82, 42, 24);
-        border: 1px solid rgb(182, 84, 48);
+        background-color: rgba(74, 55, 40, 0.08);
+        color: var(--color-walnut);
+        border-color: rgba(74, 55, 40, 0.24);
     }
 
     .originalButton:hover {
-        background-color: rgb(214, 190, 166);
+        background-color: rgba(74, 55, 40, 0.14);
     }
 
     .backButton {
-        background-color: #e0e0e0;
-        color: #333;
+        background-color: #efe5d5;
+        color: var(--color-walnut);
+        border-color: rgba(74, 55, 40, 0.18);
     }
 
     .backButton:hover {
-        background-color: #d0d0d0;
+        background-color: #e7d8c2;
     }
 
     @media (max-width: 768px) {
@@ -464,17 +550,101 @@ const printSchema = {
             position: static;
         }
 
+        .imageContainer {
+            min-height: 240px;
+            max-width: 100%;
+        }
+
         .actions {
             flex-direction: column;
+        }
+
+        .cartButton,
+        .originalButton,
+        .backButton {
+            width: 100%;
+            text-align: center;
         }
     }
 </style>
 
 <script>
+    import { CART_EVENTS, addToCart, readCart } from '../../../scripts/cart';
+
     document.addEventListener('DOMContentLoaded', () => {
         const imageContainer = document.querySelector('.imageContainer');
+        const addToCartButtons = Array.from(document.querySelectorAll<HTMLButtonElement>('.addToCartButton'));
+        const cartFeedback = document.querySelector<HTMLElement>('.cartFeedback');
         const dots = Array.from(document.querySelectorAll<HTMLButtonElement>('.dot'));
         const images = Array.from(document.querySelectorAll<HTMLImageElement>('.productImage'));
+        let feedbackTimeout: number | undefined;
+
+        const showFeedback = (message: string) => {
+            if (!cartFeedback) return;
+            cartFeedback.textContent = message;
+            cartFeedback.classList.add('is-visible');
+            if (feedbackTimeout) {
+                window.clearTimeout(feedbackTimeout);
+            }
+            feedbackTimeout = window.setTimeout(() => {
+                cartFeedback.classList.remove('is-visible');
+            }, 2200);
+        };
+
+        const syncSingleItemButtons = () => {
+            const cartIds = new Set(readCart().map((item) => item.id));
+            addToCartButtons.forEach((button) => {
+                const isSingle = button.getAttribute('data-single') === 'true';
+                if (!isSingle) return;
+
+                const id = button.getAttribute('data-cart-id') || '';
+                const inCart = Boolean(id) && cartIds.has(id);
+                button.disabled = inCart;
+                button.textContent = inCart ? 'Item in Cart' : 'Add to Cart';
+            });
+        };
+
+        syncSingleItemButtons();
+        window.addEventListener(CART_EVENTS.UPDATED, syncSingleItemButtons);
+
+        addToCartButtons.forEach((button) => {
+            button.addEventListener('click', () => {
+                const id = button.getAttribute('data-cart-id') || '';
+                const sku = button.getAttribute('data-sku') || '';
+                const title = button.getAttribute('data-title') || 'Artwork';
+                const rawPrice = button.getAttribute('data-price') || '';
+                const imageUrl = button.getAttribute('data-image') || '';
+                const detailUrl = button.getAttribute('data-detail-url') || '';
+                const type = (button.getAttribute('data-type') || 'print') as 'original' | 'print';
+                const isSingle = button.getAttribute('data-single') === 'true';
+
+                const price = Number.parseFloat(rawPrice.replace(/[^0-9.]/g, ''));
+                addToCart({
+                    id: id || `print:${sku || title}`,
+                    sku,
+                    title,
+                    price: Number.isFinite(price) ? price : 0,
+                    imageUrl: imageUrl || undefined,
+                    detailUrl: detailUrl || undefined,
+                    type
+                });
+
+                if (isSingle) {
+                    syncSingleItemButtons();
+                    showFeedback('Added to cart. This piece is now marked as in your cart.');
+                    return;
+                }
+
+                const previousLabel = button.textContent;
+                button.textContent = 'Added to Cart';
+                button.disabled = true;
+                window.setTimeout(() => {
+                    button.textContent = previousLabel;
+                    button.disabled = false;
+                }, 1200);
+                showFeedback('Added to cart.');
+            });
+        });
 
         if (images.length === 0) return;
 
