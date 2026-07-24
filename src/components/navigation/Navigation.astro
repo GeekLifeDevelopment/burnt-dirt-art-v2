@@ -24,6 +24,12 @@ const isCartPage = pathname === '/cart';
             />
         </a>
 
+        <a href="/cart" class={`mobileCartLink ${isCartPage ? 'is-active' : ''}`} aria-current={isCartPage ? 'page' : undefined}>
+            <i class="fas fa-shopping-bag" aria-hidden="true"></i>
+            <span>Cart</span>
+            <span class="cartCount" id="navCartCountMobile" aria-live="polite">0</span>
+        </a>
+
         <button
             class="hamburger"
             id="hamburger"
@@ -50,7 +56,7 @@ const isCartPage = pathname === '/cart';
             <li>
                 <a href="/shop/prints" class={`navLink ${isShopPrintsPage ? 'is-active' : ''}`} aria-current={isShopPrintsPage ? 'page' : undefined}>Shop Prints</a>
             </li>
-            <li>
+            <li class="navItem--cart">
                 <a href="/cart" class={`navLink navLink--cart ${isCartPage ? 'is-active' : ''}`} aria-current={isCartPage ? 'page' : undefined}>
                     <i class="fas fa-shopping-bag" aria-hidden="true"></i>
                     <span>Cart</span>
@@ -72,12 +78,17 @@ const isCartPage = pathname === '/cart';
     const navList = document.getElementById('navList');
     const navLinks = navList?.querySelectorAll('a');
     const navCartCount = document.getElementById('navCartCount');
+    const navCartCountMobile = document.getElementById('navCartCountMobile');
 
     const refreshCartCount = () => {
         const count = getCartCount();
         if (navCartCount) {
             navCartCount.textContent = String(count);
             navCartCount.classList.toggle('is-empty', count === 0);
+        }
+        if (navCartCountMobile) {
+            navCartCountMobile.textContent = String(count);
+            navCartCountMobile.classList.toggle('is-empty', count === 0);
         }
     };
 
