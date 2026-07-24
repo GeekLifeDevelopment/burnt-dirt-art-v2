@@ -39,6 +39,22 @@ function normalizeToList(value: any): string[] {
     return [String(value).trim().toLowerCase()].filter(Boolean);
 }
 
+function hasNudeStudiesCategory(value: any): boolean {
+    return normalizeToList(value).includes('nude studies');
+}
+
+function getDisplayCategory(value: any): string {
+    if (hasNudeStudiesCategory(value)) {
+        return 'Nude Studies';
+    }
+
+    const rawCategory = Array.isArray(value)
+        ? String(value[0] || '').trim()
+        : String(value || '').trim();
+
+    return rawCategory || 'Uncategorized';
+}
+
 function isChecked(value: any): boolean {
     if (typeof value === 'boolean') return value;
     if (typeof value === 'number') return value === 1;
@@ -113,8 +129,7 @@ if (!space || !accessToken) {
         const categorySet = new Set<string>();
         shopItems.forEach(item => {
             if (item.fields.category) {
-                // Convert to string, trim whitespace and normalize the category
-                const normalizedCategory = String(item.fields.category).trim();
+                const normalizedCategory = getDisplayCategory(item.fields.category);
                 if (normalizedCategory) {
                     categorySet.add(normalizedCategory);
                 }
