@@ -1,23 +1,54 @@
 ---
-import  './Footer.styles.css';
+import './Footer.styles.css';
+import BackToTop from '../backToTop/BackToTop.astro';
 ---
 
-<div class="footerContainer">
-    <div class="footerContent">
-        <p>&copy; {new Date().getFullYear()} Burnt Dirt Art. All rights reserved.</p>
-        <p>Follow me on 
-            <a href="https://www.instagram.com/burntdirtart/" target="_blank" rel="noopener noreferrer">Instagram</a>, 
-            <a href="https://www.facebook.com/profile.php?id=61582823711371" target="_blank" rel="noopener noreferrer">Facebook</a>, 
-            <a href="https://www.youtube.com/@BurntDirtArt" target="_blank" rel="noopener noreferrer">YouTube</a>
-            and 
-            <a href="https://www.pinterest.com/burntdirtart/" target="_blank" rel="noopener noreferrer">Pinterest</a>
-            
-        </p>
-        <p>Shop my artwork on 
-            <a href="https://www.ebay.com/sch/i.html?_ssn=burnt-dirt-art" target="_blank" rel="noopener noreferrer sponsored">eBay</a>
-        </p>
-        <p class="footerDisclaimer">We retain copyright. No artwork may be reproduced without consent from Burnt Dirt Art.</p>
+<footer class="footerContainer">
+    <BackToTop />
+    <div class="footerInner ds-container">
+        <div class="footerTitleBlock">
+            <p class="footerKicker">Burnt Dirt Art Studio</p>
+            <p class="footerTitle">Thank you for visiting the studio.</p>
+            <p class="footerLead">Each piece is handmade and rooted in story, material, and place.</p>
+        </div>
+
+        <div class="footerGrid">
+            <section aria-labelledby="footer-nav-heading">
+                <h2 id="footer-nav-heading">Explore</h2>
+                <ul>
+                    <li><a href="/">Home</a></li>
+                    <li><a href="/about">About</a></li>
+                    <li><a href="/gallery">Gallery</a></li>
+                    <li><a href="/shop">Shop Originals</a></li>
+                    <li><a href="/shop/prints">Shop Prints</a></li>
+                    <li><a href="/contact">Contact</a></li>
+                </ul>
+            </section>
+
+            <section aria-labelledby="footer-connect-heading">
+                <h2 id="footer-connect-heading">Connect</h2>
+                <ul>
+                    <li><a href="https://www.instagram.com/burntdirtart/" target="_blank" rel="noopener noreferrer">Instagram</a></li>
+                    <li><a href="https://www.facebook.com/profile.php?id=61582823711371" target="_blank" rel="noopener noreferrer">Facebook</a></li>
+                    <li><a href="https://www.youtube.com/@BurntDirtArt" target="_blank" rel="noopener noreferrer">YouTube</a></li>
+                    <li><a href="https://www.pinterest.com/burntdirtart/" target="_blank" rel="noopener noreferrer">Pinterest</a></li>
+                </ul>
+            </section>
+
+            <section aria-labelledby="footer-shop-heading">
+                <h2 id="footer-shop-heading">Collect</h2>
+                <p>
+                    Browse currently available pieces in the <a href="/shop">shop</a>.
+                </p>
+                <p>
+                    Looking for a custom piece? Visit the <a href="/contact">contact page</a> to begin a commission conversation.
+                </p>
+            </section>
+        </div>
+
+        <div class="footerBottomRow">
+            <p>&copy; {new Date().getFullYear()} Burnt Dirt Art. All rights reserved.</p>
+            <p class="footerDisclaimer">We retain copyright. No artwork may be reproduced without consent from Burnt Dirt Art.</p>
+        </div>
     </div>
-
-
-</div>
+</footer>

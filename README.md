@@ -2,6 +2,12 @@
 
 Astro site for Burnt Dirt Art.
 
+## Design Direction
+
+- Homepage creative brief: `HOMEPAGE_CREATIVE_BRIEF.md`
+
+Use this brief as the source of truth for homepage redesign decisions and for preserving design consistency across future pages.
+
 ## Setup
 
 1. Install dependencies:

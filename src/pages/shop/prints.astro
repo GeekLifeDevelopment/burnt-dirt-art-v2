@@ -1,7 +1,16 @@
 ---
 import Layout from '../../layouts/Layout.astro';
+import '../../styles/homepage-redesign.css';
 import * as contentful from 'contentful';
 import { artistName } from '../../config/seo';
+
+const pinboardStyles = [
+    { rotate: -2, lift: 0, attach: 'pin' },
+    { rotate: 1, lift: 16, attach: 'tape' },
+    { rotate: -1, lift: -8, attach: 'corner' },
+    { rotate: 2, lift: 10, attach: 'clip' },
+    { rotate: -1, lift: -4, attach: 'tape' }
+];
 
 const space = import.meta.env.CONTENTFUL_SPACE_ID || process.env.CONTENTFUL_SPACE_ID;
 const accessToken = import.meta.env.CONTENTFUL_ACCESS_TOKEN || process.env.CONTENTFUL_ACCESS_TOKEN;
@@ -110,8 +119,7 @@ const siteUrl = Astro.site?.toString() || 'https://burntdirtart.com';
 
 const itemListElements = printItems
     .map((item, index) => {
-        const printLink = toText(fieldValue(item, ['printLink', 'PrintLink'])) || toText(item.fields.productLink);
-        if (!printLink) return null;
+        if (!item.fields.inventoryCode) return null;
 
         const preferredImages = getPreferredImages(item);
 
@@ -127,7 +135,7 @@ const itemListElements = printItems
             item: {
                 '@type': 'Product',
                 name: printTitle,
-                url: printLink,
+                url: new URL(`/shop/prints/${item.fields.inventoryCode}`, siteUrl).toString(),
                 image: imageUrl
             }
         };
@@ -152,168 +160,95 @@ const pageSchema = itemListElements.length
 
 <Layout
     pageTitle="Shop Prints"
-    description="Browse print editions from Burnt Dirt Art and view available listings."
+    description="Browse print editions from Burnt Dirt Art and view full details in the shop."
     canonicalPath="/shop/prints"
     pageSchema={pageSchema}
 >
-    <div class="printsContainer">
-        <h1>Shop Prints</h1>
-        <p class="printsIntro">
-            Browse prints currently available from Burnt Dirt Art. Select any listing for full details and purchase options.
-        </p>
-
-        {printItems.length > 0 ? (
-            <div class="printsGrid">
-                {printItems.map((item: any) => {
-                    const printTitle = toText(fieldValue(item, ['printTitle', 'PrintTitle'])) || item.fields.title || item.fields.inventoryCode;
-                    const printPrice = fieldValue(item, ['printPrice', 'PrintPrice']) || item.fields.price;
-                    const printLink = toText(fieldValue(item, ['printLink', 'PrintLink'])) || toText(item.fields.productLink);
-                    const preferredImages = getPreferredImages(item);
-
-                    return (
-                        <article class="printItem">
-                            {preferredImages.length > 0 && (
-                                <img
-                                    src={`https:${preferredImages[0].fields.file.url}`}
-                                    alt={printTitle || 'Burnt Dirt Art print'}
-                                    width={preferredImages[0].fields.file.details?.image?.width}
-                                    height={preferredImages[0].fields.file.details?.image?.height}
-                                    loading="lazy"
-                                    decoding="async"
-                                />
-                            )}
-
-                            <h2>{printTitle || 'Untitled Print'}</h2>
-
-                            {printPrice && <p class="price">${printPrice}</p>}
-
-                            {printLink ? (
-                                <a
-                                    href={printLink}
-                                    class="detailsLink"
-                                    target="_blank"
-                                    rel="noopener noreferrer sponsored"
-                                >
-                                    View Print Listing
-                                </a>
-                            ) : (
-                                <span class="noLink">Listing unavailable</span>
-                            )}
-
-                            {item.fields.inventoryCode ? (
-                                <a href={`/shop/prints/${item.fields.inventoryCode}`} class="detailsLink detailsLinkSecondary">
-                                    Click for more details
-                                </a>
-                            ) : (
-                                <span class="noLink">Details unavailable</span>
-                            )}
-                        </article>
-                    );
-                })}
+    <section class="galleryIntroSection" aria-labelledby="prints-title">
+        <div class="ds-container">
+            <div class="homeFeaturedHeader">
+                <p class="ds-eyebrow">Shop</p>
+                <h1 id="prints-title">Shop Prints</h1>
+                <p class="homeFeaturedLead">
+                    Browse print editions currently available from Burnt Dirt Art. Select any piece for full details.
+                </p>
             </div>
-        ) : (
-            <p>
-                No prints are available right now. Please check back soon or visit{' '}
-                <a href="https://www.ebay.com/sch/i.html?_ssn=burnt-dirt-art" target="_blank" rel="noopener noreferrer sponsored">
-                    Burnt Dirt Art on eBay
-                </a>
-                .
-            </p>
-        )}
-    </div>
+        </div>
+    </section>
+
+    <section class="galleryBoardSection">
+        <div class="ds-container">
+            {printItems.length > 0 ? (
+                <ul class="homeFeaturedBoard printsBoard" aria-label="Available prints">
+                    {printItems.map((item: any, index: number) => {
+                        if (!item.fields.inventoryCode) return null;
+
+                        const printTitle = toText(fieldValue(item, ['printTitle', 'PrintTitle'])) || item.fields.title || item.fields.inventoryCode;
+                        const printPrice = fieldValue(item, ['printPrice', 'PrintPrice']) || item.fields.price;
+                        const preferredImages = getPreferredImages(item);
+                        const meta = pinboardStyles[index % pinboardStyles.length];
+                        const pinStyle = `--card-rotate: ${meta.rotate}deg; --card-lift: ${meta.lift}px; z-index: ${10 + index};`;
+
+                        return (
+                            <li class="homeFeaturedPin" style={pinStyle}>
+                                <a class="homeFeaturedCard" href={`/shop/prints/${item.fields.inventoryCode}`}>
+                                    <span class={`homeFeaturedAttach homeFeaturedAttach--${meta.attach}`} aria-hidden="true"></span>
+                                    {preferredImages.length > 0 && (
+                                        <span class="homeFeaturedCardMedia">
+                                            <img
+                                                src={`https:${preferredImages[0].fields.file.url}`}
+                                                alt={printTitle || 'Burnt Dirt Art print'}
+                                                width={preferredImages[0].fields.file.details?.image?.width}
+                                                height={preferredImages[0].fields.file.details?.image?.height}
+                                                loading="lazy"
+                                                decoding="async"
+                                            />
+                                        </span>
+                                    )}
+                                    <span class="homeFeaturedCardBody">
+                                        <span class="homeFeaturedCardTitle">{printTitle || 'Untitled Print'}</span>
+                                        {printPrice && <span class="homeFeaturedCardPrice">${printPrice}</span>}
+                                    </span>
+                                </a>
+                            </li>
+                        );
+                    })}
+                </ul>
+            ) : (
+                <p class="printsEmptyMessage">
+                    No prints are available right now. Please check back soon or visit the <a href="/shop">original art shop</a>.
+                </p>
+            )}
+        </div>
+    </section>
 </Layout>
 
 <style>
-    .printsContainer {
-        max-width: 1200px;
+    .galleryIntroSection {
+        background-color: var(--home-paper);
+        padding: clamp(2.5rem, 5vw, 4rem) 0 0;
+        display: flow-root;
+    }
+
+    .galleryBoardSection {
+        background-color: var(--home-paper);
+        padding-bottom: clamp(2rem, 5vw, 4rem);
+    }
+
+    .printsBoard {
+        margin-top: 0.4rem;
+    }
+
+    .printsEmptyMessage {
+        max-width: 46rem;
         margin: 0 auto;
-        padding: 2rem;
-        box-sizing: border-box;
-        width: 100%;
-    }
-
-    .printsIntro {
-        max-width: 850px;
-        line-height: 1.6;
-        margin-top: 0.5rem;
-    }
-
-    .printsGrid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-        gap: 2rem;
-        margin-top: 2rem;
-    }
-
-    .printItem {
-        border: 1px solid #ddd;
-        border-radius: 8px;
-        padding: 1rem;
         text-align: center;
-        display: flex;
-        flex-direction: column;
-        gap: 0.75rem;
-    }
-
-    .printItem img {
-        width: 100%;
-        height: 300px;
-        object-fit: contain;
-        border-radius: 4px;
-    }
-
-    .printItem h2 {
-        margin: 0.25rem 0;
-        font-size: 1.25rem;
-    }
-
-    .price {
-        font-size: 1.5rem;
-        font-weight: bold;
-        color: rgb(182, 84, 48);
-        margin: 0;
-    }
-
-    .detailsLink {
-        display: inline-block;
-        margin-top: auto;
-        padding: 0.5rem 1rem;
-        background-color: rgb(182, 84, 48);
-        color: white;
-        text-decoration: none;
-        border-radius: 4px;
-        transition: background-color 0.3s;
-        font-size: 0.9rem;
-    }
-
-    .detailsLink:hover {
-        background-color: rgb(150, 60, 30);
-    }
-
-    .detailsLinkSecondary {
-        background-color: #e0e0e0;
-        color: #333;
-        margin-top: 0.25rem;
-    }
-
-    .detailsLinkSecondary:hover {
-        background-color: #d0d0d0;
-    }
-
-    .noLink {
-        color: #666;
-        font-size: 0.9rem;
-        margin-top: auto;
+        line-height: 1.6;
     }
 
     @media (max-width: 768px) {
-        .printsContainer {
-            padding: 1rem;
-        }
-
-        .printsGrid {
-            grid-template-columns: 1fr;
-            gap: 1rem;
+        .printsBoard {
+            margin-top: 0;
         }
     }
 </style>

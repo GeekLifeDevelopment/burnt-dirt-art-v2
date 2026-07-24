@@ -1,0 +1,529 @@
+---
+import Layout from '../layouts/Layout.astro';
+import '../styles/homepage-redesign.css';
+---
+
+<Layout
+  pageTitle="Shopping Cart"
+  description="Review your Burnt Dirt Art selections before checkout."
+  canonicalPath="/cart"
+>
+  <section class="cartPage" aria-labelledby="cart-title">
+    <div class="ds-container">
+      <header class="cartHeader">
+        <p class="ds-eyebrow">Shop</p>
+        <h1 id="cart-title">Your Cart</h1>
+        <p class="homeFeaturedLead">Review items, adjust quantities, and continue to checkout when payments are enabled.</p>
+      </header>
+
+      <div class="cartLayout">
+        <div class="cartItemsPanel" id="cartItemsPanel"></div>
+        <aside class="cartSummaryPanel" id="cartSummaryPanel"></aside>
+      </div>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .cartPage {
+    background-color: var(--home-paper);
+    padding: clamp(2rem, 5vw, 3.4rem) 0 clamp(2.5rem, 6vw, 4rem);
+  }
+
+  .cartHeader {
+    max-width: 46rem;
+    margin: 0 auto clamp(1.4rem, 3vw, 2rem);
+    text-align: center;
+  }
+
+  .cartLayout {
+    display: grid;
+    gap: clamp(1rem, 2.5vw, 1.6rem);
+    grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+    align-items: start;
+  }
+
+  .cartItemsPanel {
+    min-height: 140px;
+  }
+
+  .cartSummaryPanel {
+    border: 1px solid rgba(74, 55, 40, 0.18);
+    border-radius: 4px;
+    background: #fdf8ef;
+    box-shadow: 0 8px 18px rgba(47, 34, 24, 0.1);
+    padding: clamp(0.9rem, 2.5vw, 1.2rem);
+    position: sticky;
+    top: 1.25rem;
+  }
+
+  .cartItemsBoard {
+    list-style: none;
+    margin: 0;
+    padding: clamp(0.2rem, 1.4vw, 0.6rem) 0;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 0;
+  }
+
+  .cartPin {
+    width: clamp(145px, 16vw, 182px);
+    margin: 0 -9px clamp(1rem, 2.4vw, 1.5rem);
+    transform: translateY(var(--card-lift, 0px)) rotate(var(--card-rotate, 0deg));
+  }
+
+  .cartCard {
+    display: grid;
+    align-content: start;
+    min-height: 100%;
+    text-align: center;
+  }
+
+  .cartCardMedia {
+    aspect-ratio: 4 / 5;
+    display: block;
+    overflow: hidden;
+    border: 1px solid rgba(74, 55, 40, 0.14);
+    background-color: #efe6d4;
+  }
+
+  .cartItemImage {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .cartImageFallback {
+    width: 100%;
+    height: 100%;
+    display: grid;
+    place-items: center;
+    color: rgba(47, 43, 40, 0.6);
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .cartCardBody {
+    display: grid;
+    gap: 0.38rem;
+    padding: 0.52rem 0.18rem 0;
+  }
+
+  .cartItemTitle {
+    margin: 0;
+    font-size: 0.88rem;
+    line-height: 1.3;
+    color: var(--color-walnut);
+    font-family: var(--font-serif);
+  }
+
+  .cartItemMeta {
+    margin: 0;
+    color: rgba(47, 43, 40, 0.82);
+    font-size: 0.74rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  .cartQty {
+    display: inline-grid;
+    grid-template-columns: 1.25rem 1.75rem 1.25rem;
+    align-items: center;
+    justify-content: center;
+    column-gap: 0.22rem;
+  }
+
+  .qtyButton {
+    width: 1.25rem;
+    height: 1.25rem;
+    border: 1px solid rgba(74, 55, 40, 0.28);
+    background: #fff;
+    color: var(--color-walnut);
+    border-radius: 3px;
+    cursor: pointer;
+    font-weight: 700;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+  }
+
+  .qtyInput {
+    width: 1.75rem;
+    height: 1.25rem;
+    text-align: center;
+    border: 1px solid rgba(74, 55, 40, 0.3);
+    border-radius: 3px;
+    background: #fff;
+    color: var(--color-charcoal);
+    padding: 0;
+    font-size: 0.7rem;
+    line-height: 1;
+    appearance: textfield;
+    -moz-appearance: textfield;
+  }
+
+  .qtyInput::-webkit-outer-spin-button,
+  .qtyInput::-webkit-inner-spin-button {
+    margin: 0;
+    -webkit-appearance: none;
+  }
+
+  .cartCardActions {
+    display: grid;
+    gap: 0.32rem;
+    justify-items: center;
+  }
+
+  .itemTotal {
+    margin: 0;
+    font-weight: 700;
+    color: var(--color-terracotta);
+    font-size: 0.82rem;
+  }
+
+  .cartSingleNote {
+    margin: 0;
+    color: rgba(47, 43, 40, 0.75);
+    font-size: 0.74rem;
+  }
+
+  .linkButton {
+    text-decoration: none;
+    font-size: 0.76rem;
+    color: var(--color-walnut);
+  }
+
+  .removeButton {
+    border: none;
+    background: transparent;
+    color: #7c3f22;
+    font-weight: 700;
+    cursor: pointer;
+    padding: 0;
+    font-size: 0.76rem;
+  }
+
+  :global(.cartItemsBoard .cartItemTitle) {
+    font-size: 0.8rem;
+    line-height: 1.25;
+  }
+
+  :global(.cartItemsBoard .cartQty) {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: nowrap;
+    gap: 0.22rem;
+  }
+
+  :global(.cartItemsBoard .qtyButton) {
+    width: 1.2rem;
+    height: 1.2rem;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    border: 1px solid rgba(74, 55, 40, 0.28);
+    border-radius: 3px;
+    background: #fff;
+  }
+
+  :global(.cartItemsBoard .qtyInput) {
+    width: 1.7rem;
+    height: 1.2rem;
+    padding: 0;
+    margin: 0;
+    text-align: center;
+    font-size: 0.68rem;
+    line-height: 1;
+    border: 1px solid rgba(74, 55, 40, 0.3);
+    border-radius: 3px;
+    appearance: textfield;
+    -moz-appearance: textfield;
+  }
+
+  :global(.cartItemsBoard .qtyInput::-webkit-outer-spin-button),
+  :global(.cartItemsBoard .qtyInput::-webkit-inner-spin-button) {
+    margin: 0;
+    -webkit-appearance: none;
+  }
+
+  .summaryTitle {
+    margin: 0 0 0.8rem;
+    font-family: var(--font-serif);
+    color: var(--color-walnut);
+    font-size: 1.2rem;
+  }
+
+  .summaryRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 0.45rem 0;
+    color: rgba(47, 43, 40, 0.88);
+  }
+
+  .summaryTotal {
+    border-top: 1px solid rgba(74, 55, 40, 0.22);
+    margin-top: 0.8rem;
+    padding-top: 0.8rem;
+    font-weight: 700;
+    color: var(--color-walnut);
+  }
+
+  .summaryActions {
+    display: grid;
+    gap: 0.6rem;
+    margin-top: 1rem;
+  }
+
+  .cartCta,
+  .cartSecondary {
+    display: inline-block;
+    text-align: center;
+    padding: 0.75rem 1rem;
+    border-radius: 4px;
+    text-decoration: none;
+    font-weight: 700;
+    border: 1px solid transparent;
+    cursor: pointer;
+    font-size: 0.95rem;
+  }
+
+  .cartCta {
+    background: var(--color-terracotta);
+    color: #fdf6ea;
+  }
+
+  .cartCta[disabled] {
+    opacity: 0.65;
+    cursor: not-allowed;
+  }
+
+  .cartSecondary {
+    background: rgba(74, 55, 40, 0.08);
+    color: var(--color-walnut);
+    border-color: rgba(74, 55, 40, 0.2);
+  }
+
+  .cartNote {
+    margin: 0.75rem 0 0;
+    font-size: 0.86rem;
+    color: rgba(47, 43, 40, 0.75);
+    line-height: 1.5;
+  }
+
+  .emptyState {
+    text-align: center;
+    padding: 2rem 1rem;
+    border: 1px solid rgba(74, 55, 40, 0.18);
+    border-radius: 4px;
+    background: #fdf8ef;
+    box-shadow: 0 8px 18px rgba(47, 34, 24, 0.1);
+  }
+
+  .emptyState p {
+    margin: 0.3rem 0;
+  }
+
+  @media (max-width: 900px) {
+    .cartLayout {
+      grid-template-columns: 1fr;
+    }
+
+    .cartSummaryPanel {
+      position: static;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .cartPin {
+      width: clamp(132px, 42vw, 165px);
+    }
+  }
+</style>
+
+<script>
+  import {
+    CART_EVENTS,
+    clearCart,
+    formatCurrency,
+    getCartCount,
+    getCartSubtotal,
+    readCart,
+    removeFromCart,
+    updateCartQuantity
+  } from '../scripts/cart';
+
+  const cartItemsPanel = document.getElementById('cartItemsPanel');
+  const cartSummaryPanel = document.getElementById('cartSummaryPanel');
+
+  function escapeHtml(value: string): string {
+    return value
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/\"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  function renderEmptyState() {
+    if (cartItemsPanel) {
+      cartItemsPanel.innerHTML = `
+        <div class="emptyState">
+          <p>Your cart is empty.</p>
+          <p>Explore <a href="/shop">original artwork</a> or <a href="/shop/prints">prints</a> to get started.</p>
+        </div>
+      `;
+    }
+
+    if (cartSummaryPanel) {
+      cartSummaryPanel.innerHTML = `
+        <h2 class="summaryTitle">Order Summary</h2>
+        <div class="summaryRow"><span>Items</span><span>0</span></div>
+        <div class="summaryRow summaryTotal"><span>Subtotal</span><span>${formatCurrency(0)}</span></div>
+        <p class="cartNote">Checkout with Stripe will be enabled in a future step.</p>
+      `;
+    }
+  }
+
+  function renderCart() {
+    const cart = readCart();
+    const pinboardStyles = [
+      { rotate: -2, lift: 0, attach: 'pin' },
+      { rotate: 1, lift: 12, attach: 'tape' },
+      { rotate: -1, lift: -6, attach: 'corner' },
+      { rotate: 2, lift: 8, attach: 'clip' }
+    ];
+
+    if (cart.length === 0) {
+      renderEmptyState();
+      return;
+    }
+
+    if (cartItemsPanel) {
+      const itemsHtml = cart
+        .map((item, index) => {
+          const pin = pinboardStyles[index % pinboardStyles.length];
+          const pinStyle = `--card-rotate: ${pin.rotate}deg; --card-lift: ${pin.lift}px; z-index: ${10 + index};`;
+          const title = escapeHtml(item.title);
+          const image = item.imageUrl
+            ? `<img class="cartItemImage" src="${escapeHtml(item.imageUrl)}" alt="${title}" loading="lazy" decoding="async" />`
+            : '<span class="cartImageFallback">Artwork</span>';
+          const detailLink = item.detailUrl
+            ? `<a class="linkButton" href="${escapeHtml(item.detailUrl)}">View Details</a>`
+            : '';
+          const quantityControls = item.type === 'original'
+            ? '<p class="cartSingleNote">One available</p>'
+            : `
+                <div class="cartQty">
+                  <button class="qtyButton" type="button" data-action="decrease" data-id="${escapeHtml(item.id)}" aria-label="Decrease quantity">−</button>
+                  <input class="qtyInput" data-action="quantity" data-id="${escapeHtml(item.id)}" type="number" min="1" value="${item.quantity}" aria-label="Quantity" />
+                  <button class="qtyButton" type="button" data-action="increase" data-id="${escapeHtml(item.id)}" aria-label="Increase quantity">+</button>
+                </div>
+              `;
+
+          return `
+            <li class="homeFeaturedPin cartPin" data-cart-id="${escapeHtml(item.id)}" style="${pinStyle}">
+              <div class="homeFeaturedCard cartCard">
+                <span class="homeFeaturedAttach homeFeaturedAttach--${pin.attach}" aria-hidden="true"></span>
+                <span class="homeFeaturedCardMedia cartCardMedia">${image}</span>
+                <span class="homeFeaturedCardBody cartCardBody">
+                  <h3 class="cartItemTitle">${title}</h3>
+                  <p class="cartItemMeta">${item.type === 'print' ? 'Print' : 'Original'}${item.sku ? ` · ${escapeHtml(item.sku)}` : ''}</p>
+                  ${quantityControls}
+                  <div class="cartCardActions">
+                    <p class="itemTotal">${formatCurrency(item.price * item.quantity)}</p>
+                    ${detailLink}
+                    <button class="removeButton" type="button" data-action="remove" data-id="${escapeHtml(item.id)}">Remove</button>
+                  </div>
+                </span>
+              </div>
+            </li>
+          `;
+        })
+        .join('');
+
+      cartItemsPanel.innerHTML = `<ul class="homeFeaturedBoard cartItemsBoard">${itemsHtml}</ul>`;
+    }
+
+    if (cartSummaryPanel) {
+      cartSummaryPanel.innerHTML = `
+        <h2 class="summaryTitle">Order Summary</h2>
+        <div class="summaryRow"><span>Items</span><span>${getCartCount()}</span></div>
+        <div class="summaryRow summaryTotal"><span>Subtotal</span><span>${formatCurrency(getCartSubtotal())}</span></div>
+        <div class="summaryActions">
+          <button class="cartCta" type="button" disabled>Checkout (Coming Soon)</button>
+          <a class="cartSecondary" href="/shop">Continue Shopping</a>
+          <button class="cartSecondary" type="button" id="clearCartButton">Clear Cart</button>
+        </div>
+        <p class="cartNote">This UI is ready for Stripe integration in the next step.</p>
+      `;
+    }
+
+    const clearCartButton = document.getElementById('clearCartButton');
+    clearCartButton?.addEventListener('click', () => {
+      clearCart();
+      renderCart();
+    });
+  }
+
+  document.addEventListener('click', (event) => {
+    const target = event.target as HTMLElement | null;
+    if (!target) return;
+
+    const action = target.getAttribute('data-action');
+    const id = target.getAttribute('data-id') || '';
+    if (!action || !id) return;
+
+    if (action === 'remove') {
+      removeFromCart(id);
+      renderCart();
+      return;
+    }
+
+    const cart = readCart();
+    const item = cart.find((entry) => entry.id === id);
+    if (!item) return;
+
+    if (action === 'increase') {
+      updateCartQuantity(id, item.quantity + 1);
+      renderCart();
+      return;
+    }
+
+    if (action === 'decrease') {
+      updateCartQuantity(id, item.quantity - 1);
+      renderCart();
+    }
+  });
+
+  document.addEventListener('change', (event) => {
+    const target = event.target as HTMLElement | null;
+    if (!target || !target.matches('.qtyInput')) return;
+
+    const input = target as HTMLInputElement;
+    const id = input.getAttribute('data-id') || '';
+    if (!id) return;
+
+    const quantity = Number.parseInt(input.value || '1', 10);
+    updateCartQuantity(id, Number.isFinite(quantity) ? quantity : 1);
+    renderCart();
+  });
+
+  window.addEventListener(CART_EVENTS.UPDATED, renderCart);
+  window.addEventListener('storage', (event) => {
+    if (event.key === 'bda_cart_v1') {
+      renderCart();
+    }
+  });
+
+  renderCart();
+</script>
