@@ -1,5 +1,6 @@
 ---
 import { artistName, seoConfig } from '../config/seo';
+import burntDirtFavicon from '../assets/burnt-dirt-favicon.png';
 
 interface Props {
   pageTitle?: string;
@@ -37,7 +38,7 @@ const organizationSchema: Record<string, any> = {
   '@type': 'Organization',
   name: seoConfig.siteName,
   url: siteUrl,
-  logo: new URL('/favicon.svg', siteUrl).toString(),
+  logo: new URL(burntDirtFavicon.src, siteUrl).toString(),
   sameAs: Object.values(seoConfig.socialLinks)
 };
 
@@ -67,7 +68,8 @@ const schemas = [organizationSchema, websiteSchema, ...pageSchemas];
 <meta name="theme-color" content={themeColor} />
 
 <link rel="canonical" href={canonicalUrl} />
-<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+<link rel="icon" type="image/png" href={burntDirtFavicon.src} />
+<link rel="shortcut icon" type="image/png" href={burntDirtFavicon.src} />
 
 <meta property="og:site_name" content={seoConfig.siteName} />
 <meta property="og:type" content={ogType} />
